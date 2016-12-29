@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+<button onclick="facebookWallPost()">Post</button>
+</body>
+<script>
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '181022492372753',
+            xfbml      : true,
+            version    : 'v2.8',
+            channelUrl : 'https://localhost:63342/webtest/facebook.html'
+        });
+        FB.AppEvents.logPageView();
+
+    };
+
+    feedPost = function(response){
+        FB.ui({
+            method: 'share',
+            href: 'http://imgur.com/gallery/gkm0w',
+            quote: 'This is my test post @117483585008',
+            hashtag: '#nodapl'
+        }, function(response){});
+    }
+
+   facebookWallPost = function() {
+       feedPost(null)
+   }
+
+
+</script>
+</html>
