@@ -8,6 +8,7 @@ var mainState = {
         game.load.image('bird', 'assets/trumpface.png');
 
         game.load.image('pipe', 'assets/pipe.png');
+        game.load.image('bird_dead', 'assets/trumpfacedead.png');
 
         game.load.audio('jump', 'assets/jump.wav');
     },
@@ -89,6 +90,7 @@ var mainState = {
             return;
 
         // Set the alive property of the bird to false
+        this.bird.loadTexture('bird_dead',0);
         this.bird.alive = false;
 
         // Prevent new pipes from appearing
@@ -103,7 +105,9 @@ var mainState = {
 // Restart the game
     restartGame: function() {
         // Start the 'main' state, which restarts the game
+        this.bird.
         game.state.start('main');
+        this.bird.loadTexture('bird',0);
     },
 
     addOnePipe: function(x, y) {
