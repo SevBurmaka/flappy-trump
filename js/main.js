@@ -1,3 +1,17 @@
+var endText = ["WRONG","YOU ARE WORSE THAN CNN",
+    "YOU ARE SO BAD IT MAKES MY HEAD SPIN",
+    "PLEASE DON'T FEEL STUPID OR INSECURE, IT'S NOT YOUR FAULT",
+    "I'M GOING TO CREATE A SPECIAL COMMITTEE TO LOCK YOU UP",
+    "YOU ARE AS STUPID AS THE PEOPLE OF IOWA",
+    "I DON'T WANT TO USE THE WORD 'SCREWED', BUT I SCREWED YOU",
+    "THE CONCEPT OF THIS GAME WAS CREATED BY AND FOR THE CHINESE",
+    "IT DOESN'T MATTER AS LONG AS YOU'VE GOT A YOUNG AND BEAUTIFUL PIECE OF ASS",
+    "FAIL AT GAMING. SAD!"]
+
+var getRandomEndText = function(){
+    return endText[Math.floor(Math.random()*endText.length)]
+}
+
 // Create our 'main' state that will contain the game
 var mainState = {
     preload: function() {
@@ -61,10 +75,12 @@ var mainState = {
         // If the bird is out of the screen (too high or too low)
         // Call the 'restartGame' function
         if (this.bird.y < 0 || this.bird.y > 490)
-            this.restartGame();
+            this.gameOver();
 
         game.physics.arcade.overlap(
-            this.bird, this.pipes, this.hitPipe, null, this);
+            this.bird, this.pipes, this.gameOver, null, this);
+        this.bird.checkWorldBounds = true;
+        this.bird.events.onOutOfBounds.add(this.gameOver, this);
 
         if (this.bird.angle < 20)
             this.bird.angle += 1;
@@ -72,9 +88,10 @@ var mainState = {
 
     // Make the bird jump
     jump: function() {
-        if (this.bird.alive == false)
+        if (this.bird.alive == false) {
+            this.restartGame();
             return;
-
+        }
         this.jumpSound.play();
         // Add a vertical velocity to the bird
         this.bird.body.velocity.y = -350;
@@ -83,7 +100,17 @@ var mainState = {
         animation.start();
     },
 
-    hitPipe: function() {
+
+
+// Restart the game
+    restartGame: function() {
+        window.location.reload(false);
+        // Start the 'main' state, which restarts the game
+        // this.bird.game.state.start('main');
+        // this.bird.loadTexture('bird',0);
+    },
+
+    gameOver: function() {
         // If the bird has already hit a pipe, do nothing
         // It means the bird is already falling off the screen
         if (this.bird.alive == false)
@@ -100,14 +127,25 @@ var mainState = {
         this.pipes.forEach(function(p){
             p.body.velocity.x = 0;
         }, this);
-    },
 
-// Restart the game
-    restartGame: function() {
-        // Start the 'main' state, which restarts the game
-        this.bird.
-        game.state.start('main');
-        this.bird.loadTexture('bird',0);
+        this.endBox = game.add.graphics();
+        this.endBox.beginFill(0xFFFFFF, 0.8);
+        this.endBox.lineStyle(10, 0x000000, 0.7);
+        this.endBox.drawRect(50, 100, 300, 300);
+
+        var style = { font: "bold 20px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 300,
+            boundsAlignH: "center", boundsAlignV: "middle" };
+        text = game.add.text(0, 0, getRandomEndText(), style);
+        text.setShadow(1, 1, 'rgba(0,0,0,0.5)', 1);
+        text.setTextBounds(100, 150, 200, 100);
+
+        var style = { font: "bold 16px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 300,
+            boundsAlignH: "center", boundsAlignV: "middle" };
+        text = game.add.text(0, 0, "PRESS SPACE TO DO BETTER NEXT TIME", style);
+        text.setShadow(1, 1, 'rgba(0,0,0,0.5)', 1);
+        text.setTextBounds(100, 300, 200, 100);
     },
 
     addOnePipe: function(x, y) {
@@ -129,6 +167,8 @@ var mainState = {
     },
 
     addRowOfPipes: function() {
+        if (this.bird.alive == false)
+            return
         // Randomly pick a number between 1 and 5
         // This will be the hole position
         var hole = Math.floor(Math.random() * 5) + 1;
@@ -137,7 +177,7 @@ var mainState = {
         // With one big hole at position 'hole' and 'hole + 1'
         for (var i = 0; i < 8; i++)
             if (i != hole && i != hole + 1)
-                this.addOnePipe(400, i * 60 + 10);
+                this.addOnePipe(400, i * 60+10);
 
         this.score += 1;
         this.labelScore.text = this.score;
