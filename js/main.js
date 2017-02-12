@@ -19,9 +19,9 @@ var mainState = {
         // That's where we load the images and sounds
 
         // Load the bird sprite
-        game.load.image('bird', 'assets/trumpface.png');
+        game.load.image('trump', 'assets/trumpface.png');
 
-        game.load.image('pipe', 'assets/pipe.png');
+        game.load.image('bricks', 'assets/bricks.jpg');
         game.load.image('bird_dead', 'assets/trumpfacedead.png');
 
         game.load.audio('jump', 'assets/jump.wav');
@@ -40,7 +40,7 @@ var mainState = {
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         // Display the bird at the position x=100 and y=245
-        this.bird = game.add.sprite(100, 245, 'bird');
+        this.bird = game.add.sprite(100, 245, 'trump');
 
         // Add physics to the bird
         // Needed for: movements, gravity, collisions, etc.
@@ -60,8 +60,13 @@ var mainState = {
         this.timer = game.time.events.loop(1500, this.addRowOfPipes, this);
 
         this.score = 0;
+        var style = { font: "bold 36px Arial", fill: "#FFF",
+            wordWrap: true, wordWrapWidth: 300,
+            boundsAlignH: "center", boundsAlignV: "middle" };
         this.labelScore = game.add.text(20, 20, "0",
-            { font: "30px Arial", fill: "#ffffff" });
+            style);
+        this.labelScore.stroke = '#000000';
+        this.labelScore.strokeThickness = 6;
 
         // Move the anchor to the left and downward
         this.bird.anchor.setTo(-0.2, 0.5);
@@ -107,7 +112,7 @@ var mainState = {
         window.location.reload(false);
         // Start the 'main' state, which restarts the game
         // this.bird.game.state.start('main');
-        // this.bird.loadTexture('bird',0);
+        // this.bird.loadTexture('trump',0);
     },
 
     gameOver: function() {
@@ -133,25 +138,24 @@ var mainState = {
         this.endBox.lineStyle(10, 0x000000, 0.7);
         this.endBox.drawRect(50, 100, 300, 300);
 
-        var style = { font: "bold 20px Arial", fill: "#111",
+        var style = { font: "bold 20px Arial", fill: "#fff",
             wordWrap: true, wordWrapWidth: 300,
             boundsAlignH: "center", boundsAlignV: "middle" };
-        text = game.add.text(0, 0, getRandomEndText(), style);
-        text.setShadow(1, 1, 'rgba(0,0,0,0.5)', 1);
-        text.setTextBounds(100, 150, 200, 100);
+        textMain = game.add.text(0, 0, getRandomEndText(), style);
+        textMain.stroke = '#000000';
+        textMain.strokeThickness = 4;
+        textMain.setTextBounds(80, 160, 240, 100);
 
         var style = { font: "bold 16px Arial", fill: "#111",
             wordWrap: true, wordWrapWidth: 300,
-            boundsAlignH: "center", boundsAlignV: "middle" };
-        text = game.add.text(0, 0, "PRESS SPACE TO DO BETTER NEXT TIME", style);
-        text.setShadow(1, 1, 'rgba(0,0,0,0.5)', 1);
-        text.setTextBounds(100, 300, 200, 100);
+            boundsAlignH: "left", boundsAlignV: "middle" };
+        textSub = game.add.text(0, 0, "PRESS SPACE TO DO BETTER NEXT TIME", style);
+        textSub.setTextBounds(80, 300, 240, 100);
     },
 
     addOnePipe: function(x, y) {
         // Create a pipe at the position x and y
-        var pipe = game.add.sprite(x, y, 'pipe');
-
+        var pipe = game.add.sprite(x, y, 'bricks');
         // Add the pipe to our previously created group
         this.pipes.add(pipe);
 
@@ -175,9 +179,9 @@ var mainState = {
 
         // Add the 6 pipes
         // With one big hole at position 'hole' and 'hole + 1'
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 9; i++)
             if (i != hole && i != hole + 1)
-                this.addOnePipe(400, i * 60+10);
+                this.addOnePipe(400, i * 60);
 
         this.score += 1;
         this.labelScore.text = this.score;
