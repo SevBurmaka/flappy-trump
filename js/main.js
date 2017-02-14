@@ -175,7 +175,8 @@ var mainState = {
     addOnePipe: function(x, y) {
         // Create a pipe at the position x and y
         var pipe = game.add.sprite(x, y, 'bricks');
-        pipe.height = 70
+        pipe.height = 80
+        pipe.width = 40
         // Add the pipe to our previously created group
         this.pipes.add(pipe);
 
@@ -201,7 +202,7 @@ var mainState = {
         // With one big hole at position 'hole' and 'hole + 1'
         for (var i = 0; i < 9; i++)
             if (i != hole && i != hole + 1)
-                this.addOnePipe(400, i * 70);
+                this.addOnePipe(400, i * 80);
 
         this.score += 1;
         this.labelScore.text = this.score;
@@ -209,7 +210,7 @@ var mainState = {
 };
 
 // Initialize Phaser, and create a 400px by 490px game
-var game = new Phaser.Game(400, 490);
+var game = new Phaser.Game(400, 640);
 
 // Add the 'mainState' and call it 'main'
 game.state.add('main', mainState);
