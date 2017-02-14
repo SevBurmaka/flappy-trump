@@ -104,7 +104,7 @@ var mainState = {
     // Make the bird jump
     jump: function() {
         if (this.bird.alive == false) {
-            this.restartGame();
+
             return;
         }
         this.jumpSound.play();
@@ -114,7 +114,6 @@ var mainState = {
 
         game.add.tween(this.bird).to({angle: -20}, 100).start();
         game.add.tween(this.hands).to({angle: -20}, 100).start();
-        animation.start();
     },
 
 
@@ -159,16 +158,24 @@ var mainState = {
         textMain.strokeThickness = 4;
         textMain.setTextBounds(80, 160, 240, 100);
 
-        var style = { font: "bold 16px Arial", fill: "#111",
-            wordWrap: true, wordWrapWidth: 300,
-            boundsAlignH: "left", boundsAlignV: "middle" };
-        textSub = game.add.text(0, 0, "PRESS SPACE TO DO BETTER NEXT TIME", style);
+
+        deathTimer = game.time.events.add(Phaser.Timer.SECOND * 3, this.restartGame, this);
+
+        textSub = game.add.text(0, 0,"3", style);
+
+        updateDeathTimer= function(){
+            textSub.text = textSub.text-1
+        }
+        game.time.events.repeat(Phaser.Timer.SECOND * 1, 2, updateDeathTimer, this);
+
         textSub.setTextBounds(80, 300, 240, 100);
     },
+
 
     addOnePipe: function(x, y) {
         // Create a pipe at the position x and y
         var pipe = game.add.sprite(x, y, 'bricks');
+        pipe.height = 70
         // Add the pipe to our previously created group
         this.pipes.add(pipe);
 
@@ -194,7 +201,7 @@ var mainState = {
         // With one big hole at position 'hole' and 'hole + 1'
         for (var i = 0; i < 9; i++)
             if (i != hole && i != hole + 1)
-                this.addOnePipe(400, i * 60);
+                this.addOnePipe(400, i * 70);
 
         this.score += 1;
         this.labelScore.text = this.score;
