@@ -87,7 +87,7 @@ var mainState = {
 
         // If the bird is out of the screen (too high or too low)
         // Call the 'restartGame' function
-        if (this.bird.y < 0 || this.bird.y > 490)
+        if (this.bird.y < 0 || this.bird.y > 640)
             this.gameOver();
 
         game.physics.arcade.overlap(
