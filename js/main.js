@@ -22,7 +22,7 @@ var mainState = {
         game.load.spritesheet('trump', 'assets/trump-sprite.png', 50, 67);
         game.load.spritesheet('trump-hands', 'assets/hands-small-anim.png', 80, 41);
         game.load.image('bricks', 'assets/bricks.jpg');
-        game.load.image('bird_dead', 'assets/trumpfacedead.png');
+        game.load.image('trump_dead', 'assets/trumpfacedead.png');
 
         game.load.audio('jump', 'assets/jump.wav');
     },
@@ -40,10 +40,10 @@ var mainState = {
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         // Display the bird at the position x=100 and y=245
-        this.bird = game.add.sprite(100, 245, 'trump');
-        this.bird.frame = 3;
-        this.bird.animations.add('fly', [0, 1, 2, 3,4,5], 10, true);
-        this.bird.animations.play('fly');
+        this.trump = game.add.sprite(100, 245, 'trump');
+        this.trump.frame = 3;
+        this.trump.animations.add('fly', [0, 1, 2, 3,4,5], 10, true);
+        this.trump.animations.play('fly');
         this.hands = game.add.sprite(94,254,'trump-hands');
         this.hands.frame=0;
         this.hands.animations.add('flap',[0,1,2,3], 10, true);
@@ -51,10 +51,10 @@ var mainState = {
 
         // Add physics to the bird
         // Needed for: movements, gravity, collisions, etc.
-        game.physics.arcade.enable(this.bird);
+        game.physics.arcade.enable(this.trump);
         game.physics.arcade.enable(this.hands);
         // Add gravity to the bird to make it fall
-        this.bird.body.gravity.y = 1000;
+        this.trump.body.gravity.y = 1000;
         this.hands.body.gravity.y = 1000;
 
         // Call the 'jump' function when the spacekey is hit
@@ -77,7 +77,7 @@ var mainState = {
         this.labelScore.strokeThickness = 6;
 
         // Move the anchor to the left and downward
-        this.bird.anchor.setTo(-0.2, 0.5);
+        this.trump.anchor.setTo(-0.2, 0.5);
 
     },
 
@@ -87,32 +87,32 @@ var mainState = {
 
         // If the bird is out of the screen (too high or too low)
         // Call the 'restartGame' function
-        if (this.bird.y < 0 || this.bird.y > 640)
+        if (this.trump.y < 0 || this.trump.y > 640)
             this.gameOver();
 
         game.physics.arcade.overlap(
-            this.bird, this.pipes, this.gameOver, null, this);
-        this.bird.checkWorldBounds = true;
-        this.bird.events.onOutOfBounds.add(this.gameOver, this);
+            this.trump, this.pipes, this.gameOver, null, this);
+        this.trump.checkWorldBounds = true;
+        this.trump.events.onOutOfBounds.add(this.gameOver, this);
 
-        if (this.bird.angle < 20)
-            this.bird.angle += 1;
+        if (this.trump.angle < 20)
+            this.trump.angle += 1;
         if (this.hands.angle < 20)
             this.hands.angle += 1;
     },
 
     // Make the bird jump
     jump: function() {
-        if (this.bird.alive == false) {
+        if (this.trump.alive == false) {
 
             return;
         }
         this.jumpSound.play();
         // Add a vertical velocity to the bird
-        this.bird.body.velocity.y = -350;
+        this.trump.body.velocity.y = -350;
         this.hands.body.velocity.y = -350;
 
-        game.add.tween(this.bird).to({angle: -20}, 100).start();
+        game.add.tween(this.trump).to({angle: -20}, 100).start();
         game.add.tween(this.hands).to({angle: -20}, 100).start();
     },
 
@@ -122,20 +122,20 @@ var mainState = {
     restartGame: function() {
         window.location.reload(false);
         // Start the 'main' state, which restarts the game
-        // this.bird.game.state.start('main');
-        // this.bird.loadTexture('trump',0);
+        // this.trump.game.state.start('main');
+        // this.trump.loadTexture('trump',0);
     },
 
     gameOver: function() {
         // If the bird has already hit a pipe, do nothing
         // It means the bird is already falling off the screen
-        if (this.bird.alive == false)
+        if (this.trump.alive == false)
             return;
-        this.bird.animations.stop();
+        this.trump.animations.stop();
         this.hands.animations.stop();
         // Set the alive property of the bird to false
-        // this.bird.loadTexture('bird_dead',0);
-        this.bird.alive = false;
+        // this.trump.loadTexture('trump_dead',0);
+        this.trump.alive = false;
 
         // Prevent new pipes from appearing
         game.time.events.remove(this.timer);
@@ -192,7 +192,7 @@ var mainState = {
     },
 
     addRowOfPipes: function() {
-        if (this.bird.alive == false)
+        if (this.trump.alive == false)
             return
         // Randomly pick a number between 1 and 5
         // This will be the hole position
