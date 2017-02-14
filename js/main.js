@@ -19,8 +19,8 @@ var mainState = {
         // That's where we load the images and sounds
 
         // Load the bird sprite
-        game.load.image('trump', 'assets/trumpface.png');
-
+        game.load.spritesheet('trump', 'assets/trump-sprite.png', 50, 67);
+        game.load.spritesheet('trump-hands', 'assets/hands-small-anim.png', 80, 41);
         game.load.image('bricks', 'assets/bricks.jpg');
         game.load.image('bird_dead', 'assets/trumpfacedead.png');
 
@@ -41,13 +41,21 @@ var mainState = {
 
         // Display the bird at the position x=100 and y=245
         this.bird = game.add.sprite(100, 245, 'trump');
+        this.bird.frame = 3;
+        this.bird.animations.add('fly', [0, 1, 2, 3,4,5], 10, true);
+        this.bird.animations.play('fly');
+        this.hands = game.add.sprite(94,254,'trump-hands');
+        this.hands.frame=0;
+        this.hands.animations.add('flap',[0,1,2,3], 10, true);
+        this.hands.animations.play('flap');
 
         // Add physics to the bird
         // Needed for: movements, gravity, collisions, etc.
         game.physics.arcade.enable(this.bird);
-
+        game.physics.arcade.enable(this.hands);
         // Add gravity to the bird to make it fall
         this.bird.body.gravity.y = 1000;
+        this.hands.body.gravity.y = 1000;
 
         // Call the 'jump' function when the spacekey is hit
         var spaceKey = game.input.keyboard.addKey(
@@ -89,6 +97,8 @@ var mainState = {
 
         if (this.bird.angle < 20)
             this.bird.angle += 1;
+        if (this.hands.angle < 20)
+            this.hands.angle += 1;
     },
 
     // Make the bird jump
@@ -100,8 +110,10 @@ var mainState = {
         this.jumpSound.play();
         // Add a vertical velocity to the bird
         this.bird.body.velocity.y = -350;
+        this.hands.body.velocity.y = -350;
 
         game.add.tween(this.bird).to({angle: -20}, 100).start();
+        game.add.tween(this.hands).to({angle: -20}, 100).start();
         animation.start();
     },
 
@@ -120,9 +132,10 @@ var mainState = {
         // It means the bird is already falling off the screen
         if (this.bird.alive == false)
             return;
-
+        this.bird.animations.stop();
+        this.hands.animations.stop();
         // Set the alive property of the bird to false
-        this.bird.loadTexture('bird_dead',0);
+        // this.bird.loadTexture('bird_dead',0);
         this.bird.alive = false;
 
         // Prevent new pipes from appearing
