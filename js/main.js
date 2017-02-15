@@ -61,6 +61,7 @@ var mainState = {
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
+        game.input.onTap.add(this.jump, this);
 
         // Create an empty group
         this.pipes = game.add.group();
