@@ -11,6 +11,8 @@ var endText = ["WRONG","YOU ARE WORSE THAN CNN",
 var getRandomEndText = function(){
     return endText[Math.floor(Math.random()*endText.length)]
 }
+deathMax = 3;
+deathCount = 0;
 
 // Create our 'main' state that will contain the game
 var mainState = {
@@ -37,12 +39,23 @@ var mainState = {
     },
 
     create: function() {
+        //ADS ******************
         game.ads.setAdProvider(new Fabrique.AdProvider.AdSense(
             game,
             'game-container',
             'ad-container',
             'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
         ));
+        //Content paused event is fired when the content (game) should be paused, and the ad will be played
+        game.ads.onContentPaused.add(function () {
+            console.log('Started playing add');
+        });
+
+        //This is fired when the ad is finished playing and the content (game) should be resumed
+        game.ads.onContentResumed.add(function () {
+            console.log('Finished playing add');
+        });
+
         // This function is called after the preload function
         // Here we set up the game, display sprites, etc.
 
@@ -138,7 +151,6 @@ var mainState = {
     restartGame: function() {
         // Start the 'main' state, which restarts the game
         this.trump.game.state.start('main');
-        // this.trump.loadTexture('trump',0);
     },
 
     gameOver: function() {
@@ -148,6 +160,7 @@ var mainState = {
             return;
         this.trump.animations.stop();
         this.hands.animations.stop();
+
         // Set the alive property of the bird to false
         // this.trump.loadTexture('trump_dead',0);
         this.trump.alive = false;
@@ -184,6 +197,13 @@ var mainState = {
         game.time.events.repeat(Phaser.Timer.SECOND * 1, 2, updateDeathTimer, this);
 
         textSub.setTextBounds(80, 300, 240, 100);
+        deathCount = deathCount + 1;
+        console.log("deathtimer "+deathCount);
+        if (deathCount >= deathMax) {
+            console.log("requesting ad")
+            game.ads.requestAd();
+            deathCount = 0;
+        }
     },
 
 
@@ -217,14 +237,14 @@ var mainState = {
         // With one big hole at position 'hole' and 'hole + 1'
         for (var i = 0; i < 9; i++)
             if (i != hole && i != hole + 1)
-                this.addOnePipe(400, i * 80);
+                this.addOnePipe(500, i * 80);
 
         this.score += 1;
         this.labelScore.text = this.score;
     },
 };
 
-var game = new Phaser.Game(400, 640,Phaser.AUTO, 'game-container');
+var game = new Phaser.Game(500, 640,Phaser.AUTO, 'game-container');
 Phaser.Device.whenReady(function () {
     game.plugins.add(Fabrique.Plugins.AdManager);
 });
