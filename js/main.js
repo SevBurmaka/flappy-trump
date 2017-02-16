@@ -6,7 +6,8 @@ var endText = ["WRONG","YOU ARE WORSE THAN CNN",
     "I DON'T WANT TO USE THE WORD 'SCREWED', BUT I SCREWED YOU",
     "THE CONCEPT OF THIS GAME WAS CREATED BY AND FOR THE CHINESE",
     "IT DOESN'T MATTER AS LONG AS YOU'VE GOT A YOUNG AND BEAUTIFUL PIECE OF ASS",
-    "FAIL AT GAMING. SAD!"]
+    "FAIL AT GAMING. SAD!",
+     "YOU WIN! #ALTERNATIVEFACTS"]
 
 var getRandomEndText = function(){
     return endText[Math.floor(Math.random()*endText.length)]
@@ -133,7 +134,15 @@ var mainState = {
     // Make the bird jump
     jump: function() {
         if (this.trump.alive == false) {
-
+            if (this.canRestart == true) {
+                this.restartGame();
+                console.log("deathtimer "+deathCount);
+                if (deathCount >= deathMax) {
+                    console.log("requesting ad")
+                    game.ads.requestAd();
+                    deathCount = 0;
+                }
+            }
             return;
         }
         this.jumpSound.play();
@@ -151,6 +160,7 @@ var mainState = {
     restartGame: function() {
         // Start the 'main' state, which restarts the game
         this.trump.game.state.start('main');
+        this.canRestart=false;
     },
 
     gameOver: function() {
@@ -176,7 +186,7 @@ var mainState = {
         this.endBox = game.add.graphics();
         this.endBox.beginFill(0xFFFFFF, 0.8);
         this.endBox.lineStyle(10, 0x000000, 0.7);
-        this.endBox.drawRect(50, 100, 300, 300);
+        this.endBox.drawRect(100, 100, 300, 300);
 
         var style = { font: "bold 20px Arial", fill: "#fff",
             wordWrap: true, wordWrapWidth: 300,
@@ -184,26 +194,18 @@ var mainState = {
         textMain = game.add.text(0, 0, getRandomEndText(), style);
         textMain.stroke = '#000000';
         textMain.strokeThickness = 4;
-        textMain.setTextBounds(80, 160, 240, 100);
+        textMain.setTextBounds(120, 160, 240, 100);
 
 
-        deathTimer = game.time.events.add(Phaser.Timer.SECOND * 3, this.restartGame, this);
+        var style = { font: "bold 16px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 300,
+            boundsAlignH: "left", boundsAlignV: "middle" };
+        textSub = game.add.text(0, 0, "PRESS SPACE TO DO BETTER NEXT TIME", style);
+        textSub.setTextBounds(120, 300, 240, 100);
+        deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){this.canRestart=true}, this);
 
-        textSub = game.add.text(0, 0,"3", style);
-
-        updateDeathTimer= function(){
-            textSub.text = textSub.text-1
-        }
-        game.time.events.repeat(Phaser.Timer.SECOND * 1, 2, updateDeathTimer, this);
-
-        textSub.setTextBounds(80, 300, 240, 100);
         deathCount = deathCount + 1;
-        console.log("deathtimer "+deathCount);
-        if (deathCount >= deathMax) {
-            console.log("requesting ad")
-            game.ads.requestAd();
-            deathCount = 0;
-        }
+
     },
 
 
@@ -237,7 +239,7 @@ var mainState = {
         // With one big hole at position 'hole' and 'hole + 1'
         for (var i = 0; i < 9; i++)
             if (i != hole && i != hole + 1)
-                this.addOnePipe(500, i * 80);
+                this.addOnePipe(game.width, i * 80);
 
         this.score += 1;
         this.labelScore.text = this.score;
