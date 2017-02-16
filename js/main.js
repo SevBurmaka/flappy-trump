@@ -14,6 +14,15 @@ var getRandomEndText = function(){
 
 // Create our 'main' state that will contain the game
 var mainState = {
+    init: function() {
+    game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+    if (game.device.desktop) {
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        game.scale.pageAlignHorizontally = true;
+        game.scale.windowConstraints.bottom = 'visual'
+    }
+    game.scale.updateLayout();
+},
     preload: function() {
         // This function will be executed at the beginning
         // That's where we load the images and sounds
@@ -28,6 +37,12 @@ var mainState = {
     },
 
     create: function() {
+        // game.ads.setAdProvider(new Fabrique.AdProvider.AdSense(
+        //     game,
+        //     'game-container',
+        //     'ad-container',
+        //     'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
+        // ));
         // This function is called after the preload function
         // Here we set up the game, display sprites, etc.
 
@@ -209,8 +224,17 @@ var mainState = {
     },
 };
 
-// Initialize Phaser, and create a 400px by 490px game
-var game = new Phaser.Game(400, 640);
+var game = new Phaser.Game(400, 640,Phaser.AUTO, 'game-container');
+// Phaser.Device.whenReady(function () {
+//     game.plugins.add(Fabrique.Plugins.AdManager);
+// });
+
+//let's create a new provider, first argument should be the game, second should be the ad tag URL
+// var provider = new PhaserAds.AdProvider.Ima3(
+//     game,
+//     'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&correlator'
+// );
+// game.ads.setAdProvider(provider);
 
 // Add the 'mainState' and call it 'main'
 game.state.add('main', mainState);
