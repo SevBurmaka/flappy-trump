@@ -65,7 +65,6 @@ var mainState = {
         //This is fired when the ad is finished playing and the content (game) should be resumed
         game.ads.onContentResumed.add(function () {
             game.paused=false;
-            window.location.reload(false);
             console.log('Finished playing add');
         });
 
@@ -158,7 +157,6 @@ var mainState = {
                     sample_ct: (this.game.device.iPhone) ? 'linear' : 'skippablelinear' //Iphone doesn't support skippable videos
                 });
             }
-            deathCount = 0;
         }
     },
     // Make the bird jump
@@ -166,6 +164,10 @@ var mainState = {
         if (this.trump.alive == false) {
             if (this.canRestart == true) {
                 this.restartGame();
+                if (deathCount >= deathMax){
+                    deathCount = 0;
+                    window.location.reload(false);
+                }
             }
             return;
         }
