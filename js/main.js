@@ -6,8 +6,17 @@ var endText = ["WRONG","YOU ARE WORSE THAN CNN",
     "I DON'T WANT TO USE THE WORD 'SCREWED', BUT I SCREWED YOU",
     "THE CONCEPT OF THIS GAME WAS CREATED BY AND FOR THE CHINESE",
     "IT DOESN'T MATTER AS LONG AS YOU'VE GOT A YOUNG AND BEAUTIFUL PIECE OF ASS",
+    "HOW DO I KNOW YOU AREN'T MUSLIM TERRORIST? SHOW ME YOUR BIRTH CERTIFICATE",
+    "I HAVE A GREAT RELATIONSHIP WITH THE BLACKS",
+    "WE CAN'T CONTINUE TO ALLOW CHINA TO RAPE OUR COUNTRY",
     "FAIL AT GAMING. SAD!",
-     "YOU WIN! #ALTERNATIVEFACTS"]
+    "THIS GAME IS BEING RIGGED BUY THE DISHONEST MEDIA. SAD",
+    "I REFUSE TO CALL YOU A BIMBO BECAUSE THAT WOULD NOT BE POLITICALLY CORRECT",
+    "I'M GOING TO REPEAL AND REPLACE YOUR RIGHT TO PLAY THIS GAME",
+    "I KNOW A LOT OF PEOPLE, TREMENDOUS PEOPLE, WHO COULD DO THIS BETTER",
+     "YOU WIN! #ALTERNATIVEFACTS",
+    "THIS TRAIN WRECK WILL DRAW A CROWD BIGGER THAN MY TREMENDOUS INAUGURATION",
+"I'M NOT A PUPPET YOU'RE A PUPPET"]
 
 var getRandomEndText = function(){
     return endText[Math.floor(Math.random()*endText.length)]
@@ -21,7 +30,7 @@ var mainState = {
     game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
     if (game.device.desktop) {
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        game.scale.pageAlignHorizontally = true;
+        // game.scale.pageAlignHorizontally = true;
         game.scale.windowConstraints.bottom = 'visual'
     }
     game.scale.updateLayout();
@@ -49,11 +58,14 @@ var mainState = {
         ));
         //Content paused event is fired when the content (game) should be paused, and the ad will be played
         game.ads.onContentPaused.add(function () {
+            game.paused=true;
             console.log('Started playing add');
         });
 
         //This is fired when the ad is finished playing and the content (game) should be resumed
         game.ads.onContentResumed.add(function () {
+            game.paused=false;
+            window.location.reload(false);
             console.log('Finished playing add');
         });
 
@@ -130,18 +142,30 @@ var mainState = {
         if (this.hands.angle < 20)
             this.hands.angle += 1;
     },
-
+    onDeath: function(){
+        if (deathCount >= deathMax) {
+            console.log("requesting ad")
+            if (game.device.desktop) {
+                //This is how we request an ad for desktop
+                game.ads.requestAd({
+                    deployment: 'devsite',
+                    sample_ct: 'skippablenonlinear'
+                });
+            } else {
+                //In mobile we need to activate it by user input
+                game.ads.requestAd({
+                    deployment: 'devsite',
+                    sample_ct: (this.game.device.iPhone) ? 'linear' : 'skippablelinear' //Iphone doesn't support skippable videos
+                });
+            }
+            deathCount = 0;
+        }
+    },
     // Make the bird jump
     jump: function() {
         if (this.trump.alive == false) {
             if (this.canRestart == true) {
                 this.restartGame();
-                console.log("deathtimer "+deathCount);
-                if (deathCount >= deathMax) {
-                    console.log("requesting ad")
-                    game.ads.requestAd();
-                    deathCount = 0;
-                }
             }
             return;
         }
@@ -205,6 +229,7 @@ var mainState = {
         deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){this.canRestart=true}, this);
 
         deathCount = deathCount + 1;
+        this.onDeath();
 
     },
 

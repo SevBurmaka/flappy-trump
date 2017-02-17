@@ -143,7 +143,7 @@ var Fabrique;
                 try {
                     this.adContent.style.display = 'block';
                     // Initialize the ads manager. Ad rules playlist will start at this time.
-                    this.adsManager.init(parseInt(this.game.canvas.style.width, 10), parseInt(this.game.canvas.style.height, 10), google.ima.ViewMode.NORMAL);
+                    this.adsManager.init(parseInt(this.game.canvas.style.width, 10), parseInt((this.game.canvas.style.height*0.25), 10), google.ima.ViewMode.NORMAL);
                     // Call play to start showing the ad. Single video and overlay ads will
                     // start at this time; the call will be ignored for ad rules.
                     this.adsManager.start();
