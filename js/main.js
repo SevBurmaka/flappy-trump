@@ -48,26 +48,8 @@ var mainState = {
         game.load.audio('jump', 'assets/jump.wav');
     },
 
+
     create: function() {
-        //ADS ******************
-        game.ads.setAdProvider(new Fabrique.AdProvider.AdSense(
-            game,
-            'game-container',
-            'ad-container',
-            'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
-        ));
-        //Content paused event is fired when the content (game) should be paused, and the ad will be played
-        game.ads.onContentPaused.add(function () {
-            game.paused=true;
-            console.log('Started playing add');
-        });
-
-        //This is fired when the ad is finished playing and the content (game) should be resumed
-        game.ads.onContentResumed.add(function () {
-            game.paused=false;
-            console.log('Finished playing add');
-        });
-
         // This function is called after the preload function
         // Here we set up the game, display sprites, etc.
 
@@ -79,7 +61,11 @@ var mainState = {
         // Set the physics system
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
-        // Display the bird at the position x=100 and y=245
+
+        this.createAssets()
+
+    },
+    createAssets: function() {
         this.trump = game.add.sprite(100, 245, 'trump');
         this.trump.frame = 3;
         this.trump.animations.add('fly', [0, 1, 2, 3,4,5], 10, true);
@@ -119,9 +105,7 @@ var mainState = {
 
         // Move the anchor to the left and downward
         this.trump.anchor.setTo(-0.2, 0.5);
-
     },
-
     update: function() {
         // This function is called 60 times per second
         // It contains the game's logic
@@ -143,6 +127,7 @@ var mainState = {
     },
     onDeath: function(){
         if (deathCount >= deathMax) {
+            loadAds()
             console.log("requesting ad")
             if (game.device.desktop) {
                 //This is how we request an ad for desktop
@@ -166,7 +151,7 @@ var mainState = {
                 this.restartGame();
                 if (deathCount >= deathMax){
                     deathCount = 0;
-                    window.location.reload(false);
+                    // window.location.reload(false);
                 }
             }
             return;
@@ -186,6 +171,7 @@ var mainState = {
     restartGame: function() {
         // Start the 'main' state, which restarts the game
         this.trump.game.state.start('main');
+        // this.createAssets();
         this.canRestart=false;
     },
 
@@ -276,17 +262,30 @@ var mainState = {
 var game = new Phaser.Game(500, 640,Phaser.AUTO, 'game-container');
 Phaser.Device.whenReady(function () {
     game.plugins.add(Fabrique.Plugins.AdManager);
+    loadAds();
+
 });
 
-//let's create a new provider, first argument should be the game, second should be the ad tag URL
-// var provider = new PhaserAds.AdProvider.Ima3(
-//     game,
-//     'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&correlator'
-// );
-// game.ads.setAdProvider(provider);
+loadAds = function() {
+    game.ads.setAdProvider(new Fabrique.AdProvider.AdSense(
+        game,
+        'game-container',
+        'ad-container',
+        'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
+    ));
+    //Content paused event is fired when the content (game) should be paused, and the ad will be played
+    game.ads.onContentPaused.add(function () {
+        // game.paused=true;
+        console.log('Started playing add');
+    });
 
+    //This is fired when the ad is finished playing and the content (game) should be resumed
+    game.ads.onContentResumed.add(function () {
+        // game.paused=false;
+        console.log('Finished playing add');
+    });
+}
 // Add the 'mainState' and call it 'main'
 game.state.add('main', mainState);
-
 // Start the state to actually start the game
 game.state.start('main');
