@@ -10,7 +10,7 @@ var endText = ["WRONG","YOU ARE WORSE THAN CNN",
     "I HAVE A GREAT RELATIONSHIP WITH THE BLACKS",
     "WE CAN'T CONTINUE TO ALLOW CHINA TO RAPE OUR COUNTRY",
     "FAIL AT GAMING. SAD!",
-    "THIS GAME IS BEING RIGGED BUY THE DISHONEST MEDIA. SAD",
+    "THIS GAME IS BEING RIGGED BY THE DISHONEST MEDIA. SAD",
     "I REFUSE TO CALL YOU A BIMBO BECAUSE THAT WOULD NOT BE POLITICALLY CORRECT",
     "I'M GOING TO REPEAL AND REPLACE YOUR RIGHT TO PLAY THIS GAME",
     "I KNOW A LOT OF PEOPLE, TREMENDOUS PEOPLE, WHO COULD DO THIS BETTER",
@@ -24,7 +24,7 @@ var getRandomEndText = function(){
 deathMax = 3;
 deathCount = 0;
 trumpSoundLength = 300;
-startSoundLength = 1000;
+startSoundLength = 3000;
 loseSoundLength = 1000;
 
 // Create our 'main' state that will contain the game
@@ -32,6 +32,11 @@ var mainState = {
     init: function() {
     game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
     if (game.device.desktop) {
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        // game.scale.pageAlignHorizontally = true;
+        game.scale.windowConstraints.bottom = 'visual'
+    }
+    else {
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         // game.scale.pageAlignHorizontally = true;
         game.scale.windowConstraints.bottom = 'visual'
@@ -125,7 +130,7 @@ var mainState = {
         this.startSounds[Math.floor(Math.random()*this.startSounds.length)].play()
         this.trump.animations.play('mouthfull');
         this.lastSoundTimer = game.time.now;
-        this.lastSoundLength = loseSoundLength;
+        this.lastSoundLength = startSoundLength;
     },
     createAssets: function() {
         this.trump = game.add.sprite(100, 245, 'trump');
@@ -155,7 +160,7 @@ var mainState = {
         // Create an empty group
         this.pipes = game.add.group();
 
-        this.timer = game.time.events.loop(2000, this.addRowOfPipes, this);
+        this.timer = game.time.events.loop(2200, this.addRowOfPipes, this);
 
         this.score = 0;
         var style = { font: "bold 36px Arial", fill: "#FFF",
@@ -323,8 +328,8 @@ var mainState = {
         this.labelScore.text = this.score;
     },
 };
-
-var game = new Phaser.Game(500, 888,Phaser.AUTO, 'game-container');
+game = new Phaser.Game(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, Phaser.CANVAS, 'gameArea');
+var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
 Phaser.Device.whenReady(function () {
     game.plugins.add(Fabrique.Plugins.AdManager);
     // loadAds();
