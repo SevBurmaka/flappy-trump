@@ -128,6 +128,8 @@ var mainState = {
         game.load.audio('wrong','assets/losesounds/wrong.wav');
         game.load.audio('yourfired','assets/losesounds/yourfired.wav');
         game.load.audio('americandream','assets/losesounds/americandream.wav');
+        game.load.audio('notverygood','assets/losesounds/notverygood.wav');
+        game.load.audio('payforwall','assets/losesounds/payforwall.wav');
 
 
         //start sounds
@@ -141,6 +143,8 @@ var mainState = {
         game.load.audio('jobs','assets/startsounds/jobs.wav');
         game.load.audio('suffer','assets/startsounds/suffer.wav');
         game.load.audio('words','assets/startsounds/words.wav');
+        game.load.audio('friends','assets/startsounds/friends.wav');
+        game.load.audio('greatagain','assets/startsounds/greatagain.wav');
 
     },
 
@@ -161,7 +165,9 @@ var mainState = {
             game.add.audio('stupidpeople'),
             game.add.audio('wrong'),
             game.add.audio('yourfired'),
-            game.add.audio('americandream')
+            game.add.audio('americandream'),
+            game.add.audio('notverygood'),
+            game.add.audio('payforwall')
         ];
         this.startSounds = [
             game.add.audio('bombthem'),
@@ -173,7 +179,9 @@ var mainState = {
             game.add.audio('beatchina'),
             game.add.audio('jobs'),
             game.add.audio('suffer'),
-            game.add.audio('words')
+            game.add.audio('words'),
+            game.add.audio('friends'),
+            game.add.audio('greagain'),
         ];
 
         this.lastSoundTimer = game.time.now;
