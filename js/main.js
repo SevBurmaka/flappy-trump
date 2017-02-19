@@ -52,7 +52,7 @@ var startState = {
         this.endBox = game.add.graphics();
         this.endBox.beginFill(0xFFFFFF, 0.8);
         this.endBox.lineStyle(10, 0x000000, 0.7);
-        this.endBox.drawRect(100, 200, 300, 300);
+        this.endBox.drawRect(100, 200, 300, 350);
 
         var style = { font: "bold 50px Arial", fill: "#fff",
             wordWrap: true, wordWrapWidth: 290,
@@ -72,8 +72,14 @@ var startState = {
         else
             textSub = game.add.text(0, 0, "TAP TO FLAP WITH YOUR TINY HANDS", style);
 
-            textSub.setTextBounds(110, 400, 300, 100);
+        textSub.setTextBounds(110, 400, 300, 100);
 
+        var style = {  font: "20px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "left", boundsAlignV: "middle" };
+
+        soundText = game.add.text(0, 0, "BEST WITH SOUND ON", style);
+        soundText.setTextBounds(110, 480, 300, 100);
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(function(){game.state.start('main')}, this);
@@ -121,6 +127,8 @@ var mainState = {
         game.load.audio('stupidpeople','assets/losesounds/stupidpeople.wav');
         game.load.audio('wrong','assets/losesounds/wrong.wav');
         game.load.audio('yourfired','assets/losesounds/yourfired.wav');
+        game.load.audio('americandream','assets/losesounds/americandream.wav');
+
 
         //start sounds
         game.load.audio('bombthem','assets/startsounds/bombthem.wav');
@@ -129,6 +137,10 @@ var mainState = {
         game.load.audio('reallyrich','assets/startsounds/reallyrich.wav');
         game.load.audio('trumpx3','assets/startsounds/trumpx3.wav');
         game.load.audio('bingbong','assets/startsounds/bingbong.wav');
+        game.load.audio('beatchina','assets/startsounds/beatchina.wav');
+        game.load.audio('jobs','assets/startsounds/jobs.wav');
+        game.load.audio('suffer','assets/startsounds/suffer.wav');
+        game.load.audio('words','assets/startsounds/words.wav');
 
     },
 
@@ -148,7 +160,8 @@ var mainState = {
             game.add.audio('hardtime'),
             game.add.audio('stupidpeople'),
             game.add.audio('wrong'),
-            game.add.audio('yourfired')
+            game.add.audio('yourfired'),
+            game.add.audio('americandream')
         ];
         this.startSounds = [
             game.add.audio('bombthem'),
@@ -156,7 +169,11 @@ var mainState = {
             game.add.audio('lovemexican'),
             game.add.audio('reallyrich'),
             game.add.audio('trumpx3'),
-            game.add.audio('bingbong')
+            game.add.audio('bingbong'),
+            game.add.audio('beatchina'),
+            game.add.audio('jobs'),
+            game.add.audio('suffer'),
+            game.add.audio('words')
         ];
 
         this.lastSoundTimer = game.time.now;
