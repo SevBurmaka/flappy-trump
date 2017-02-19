@@ -23,7 +23,9 @@ var getRandomEndText = function(){
 }
 deathMax = 3;
 deathCount = 0;
-
+trumpSoundLength = 300;
+startSoundLength = 1000;
+loseSoundLength = 1000;
 
 // Create our 'main' state that will contain the game
 var mainState = {
@@ -37,19 +39,32 @@ var mainState = {
     game.scale.updateLayout();
 },
     preload: function() {
-        // This function will be executed at the beginning
-        // That's where we load the images and sounds
-
-        // Load the bird sprite
         game.load.spritesheet('trump', 'assets/trump-sprite.png', 50, 67);
         game.load.spritesheet('trump-hands', 'assets/hands-small-anim.png', 80, 41);
         game.load.image('bricks', 'assets/bricks.jpg');
         game.load.image('trump_dead', 'assets/trumpfacedead.png');
 
-        game.load.audio('bing1', 'assets/bing1.wav');
-        game.load.audio('bing2', 'assets/bing2.wav');
-        game.load.audio('bing3', 'assets/bing3.wav');
-        game.load.audio('bing4', 'assets/bing4.wav');
+        //on jump sounds
+        game.load.audio('trump1', 'assets/trump1.wav');
+        game.load.audio('trump2', 'assets/trump2.wav');
+        game.load.audio('trump3', 'assets/trump3.wav');
+
+        //lose sounds
+        game.load.audio('captured','assets/losesounds/captured.wav');
+        game.load.audio('china','assets/losesounds/china.wav');
+        game.load.audio('hardtime','assets/losesounds/hardtime.wav');
+        game.load.audio('stupidpeople','assets/losesounds/stupidpeople.wav');
+        game.load.audio('wrong','assets/losesounds/wrong.wav');
+        game.load.audio('yourfired','assets/losesounds/yourfired.wav');
+
+        //start sounds
+        game.load.audio('bombthem','assets/startsounds/bombthem.wav');
+        game.load.audio('greatwall','assets/startsounds/greatwall.wav');
+        game.load.audio('lovemexican','assets/startsounds/lovemexican.wav');
+        game.load.audio('reallyrich','assets/startsounds/reallyrich.wav');
+        game.load.audio('trumpx3','assets/startsounds/trumpx3.wav');
+        game.load.audio('bingbong','assets/startsounds/bingbong.wav');
+
     },
 
 
@@ -57,15 +72,30 @@ var mainState = {
         // This function is called after the preload function
         // Here we set up the game, display sprites, etc.
 
-        this.bing = [
-            game.add.audio('bing1'),
-            game.add.audio('bing2'),
-            game.add.audio('bing3'),
-            game.add.audio('bing4'),
+        this.flapSounds = [
+            game.add.audio('trump1'),
+            game.add.audio('trump2'),
+            game.add.audio('trump3')
         ];
-        this.jumpCount = 0;
-        this.bingTimer = game.time.now;
+        this.loseSounds = [
+            game.add.audio('captured'),
+            game.add.audio('china'),
+            game.add.audio('hardtime'),
+            game.add.audio('stupidpeople'),
+            game.add.audio('wrong'),
+            game.add.audio('yourfired')
+        ];
+        this.startSounds = [
+            game.add.audio('bombthem'),
+            game.add.audio('greatwall'),
+            game.add.audio('lovemexican'),
+            game.add.audio('reallyrich'),
+            game.add.audio('trumpx3'),
+            game.add.audio('bingbong')
+        ];
 
+        this.lastSoundTimer = game.time.now;
+        this.lastSoundLength = 0;
         // Change the background color of the game to blue
         game.stage.backgroundColor = '#71c5cf';
 
@@ -74,24 +104,36 @@ var mainState = {
 
 
         this.createAssets()
+        this.playStart();
 
     },
     playBing: function(){
-        if (game.time.now - this.bingTimer > 300) {
-            this.bing[this.jumpCount].play()
-            this.jumpCount++;
-            if (this.jumpCount >= this.bing.length)
-                this.jumpCount = 0;
-
-            this.trump.animations.play('bing');
-            this.bingTimer = game.time.now;
+        if (game.time.now - this.lastSoundTimer > this.lastSoundLength) {
+            this.flapSounds[Math.floor(Math.random()*this.flapSounds.length)].play()
+            this.trump.animations.play('mouthflap');
+            this.lastSoundTimer = game.time.now;
+            this.lastSoundLength = trumpSoundLength;
         }
+    },
+    playLose: function(){
+            this.loseSounds[Math.floor(Math.random()*this.loseSounds.length)].play()
+            this.trump.animations.play('mouthfull');
+            this.lastSoundTimer = game.time.now;
+            this.lastSoundLength = loseSoundLength;
+    },
+    playStart: function(){
+        this.startSounds[Math.floor(Math.random()*this.startSounds.length)].play()
+        this.trump.animations.play('mouthfull');
+        this.lastSoundTimer = game.time.now;
+        this.lastSoundLength = loseSoundLength;
     },
     createAssets: function() {
         this.trump = game.add.sprite(100, 245, 'trump');
         this.trump.frame = 1;
-        this.trump.animations.add('bing', [1,2, 3,4], 10, false);
+        this.trump.animations.add('mouthflap', [1,2, 3,4], 10, false);
         this.hands = game.add.sprite(94,254,'trump-hands');
+        this.trump.animations.add('mouthfull', [0,1,2,3,4,5,4,3,2,1,0], 10, false);
+
         this.hands.frame=0;
         this.hands.animations.add('flap',[0,1,2,3], 10, true);
         this.hands.animations.play('flap');
@@ -147,6 +189,7 @@ var mainState = {
             this.hands.angle += 1;
     },
     onDeath: function(){
+        this.playLose();
         if (deathCount >= deathMax) {
             // loadAds()
             // console.log("requesting ad")
@@ -220,7 +263,7 @@ var mainState = {
         this.endBox = game.add.graphics();
         this.endBox.beginFill(0xFFFFFF, 0.8);
         this.endBox.lineStyle(10, 0x000000, 0.7);
-        this.endBox.drawRect(100, 100, 300, 300);
+        this.endBox.drawRect(100, 200, 300, 300);
 
         var style = { font: "bold 20px Arial", fill: "#fff",
             wordWrap: true, wordWrapWidth: 300,
@@ -228,14 +271,14 @@ var mainState = {
         textMain = game.add.text(0, 0, getRandomEndText(), style);
         textMain.stroke = '#000000';
         textMain.strokeThickness = 4;
-        textMain.setTextBounds(120, 160, 240, 100);
+        textMain.setTextBounds(120, 260, 240, 100);
 
 
         var style = { font: "bold 16px Arial", fill: "#111",
             wordWrap: true, wordWrapWidth: 300,
             boundsAlignH: "left", boundsAlignV: "middle" };
         textSub = game.add.text(0, 0, "PRESS SPACE TO DO BETTER NEXT TIME", style);
-        textSub.setTextBounds(120, 300, 240, 100);
+        textSub.setTextBounds(120, 400, 240, 100);
         deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){this.canRestart=true}, this);
 
         deathCount = deathCount + 1;
@@ -268,11 +311,11 @@ var mainState = {
             return
         // Randomly pick a number between 1 and 5
         // This will be the hole position
-        var hole = Math.floor(Math.random() * 6) + 1;
+        var hole = Math.floor(Math.random() * 7) + 1;
 
         // Add the 6 pipes
         // With one big hole at position 'hole' and 'hole + 1'
-        for (var i = 0; i < 11; i++)
+        for (var i = 0; i < 12; i++)
             if (i != hole && i != hole + 1)
                 this.addOnePipe(game.width, i * 80);
 
