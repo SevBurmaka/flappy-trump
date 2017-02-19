@@ -27,6 +27,64 @@ trumpSoundLength = 300;
 startSoundLength = 3000;
 loseSoundLength = 1000;
 
+var startState = {
+    init: function() {
+        game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+        if (game.device.desktop) {
+            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            // game.scale.pageAlignHorizontally = true;
+            game.scale.windowConstraints.bottom = 'visual'
+        }
+        else {
+            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            // game.scale.pageAlignHorizontally = true;
+            game.scale.windowConstraints.bottom = 'visual'
+        }
+        game.scale.updateLayout();
+    },
+    preload: function() {
+        game.load.spritesheet('trump', 'assets/trump-sprite.png', 50, 67);
+        game.load.spritesheet('trump-hands', 'assets/hands-small-anim.png', 80, 41);
+    },
+    create: function() {
+        game.stage.backgroundColor = '#71c5cf';
+
+        this.endBox = game.add.graphics();
+        this.endBox.beginFill(0xFFFFFF, 0.8);
+        this.endBox.lineStyle(10, 0x000000, 0.7);
+        this.endBox.drawRect(100, 200, 300, 300);
+
+        var style = { font: "bold 50px Arial", fill: "#fff",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "center", boundsAlignV: "middle" };
+        textMain = game.add.text(0, 0, 'FLAPPY TRUMP', style);
+        textMain.stroke = '#000000';
+        textMain.strokeThickness = 6;
+        textMain.setTextBounds(110, 260, 300, 100);
+        textMain.setShadow(5, 5, 'rgba(0,0,0,0.5)', 15);
+
+
+        var style = { font: "bold 22px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "left", boundsAlignV: "middle" };
+        if (game.device.desktop)
+            textSub = game.add.text(0, 0, "PRESS SPACE TO FLAP WITH YOUR TINY HANDS", style);
+        else
+            textSub = game.add.text(0, 0, "TAP TO DO FLAP WITH YOUR TINY HANDS", style);
+
+            textSub.setTextBounds(110, 400, 300, 100);
+
+        var spaceKey = game.input.keyboard.addKey(
+            Phaser.Keyboard.SPACEBAR);
+        spaceKey.onDown.add(function(){game.state.start('main')}, this);
+    },
+
+    update: function() {
+
+    }
+
+}
+
 // Create our 'main' state that will contain the game
 var mainState = {
     init: function() {
@@ -107,7 +165,6 @@ var mainState = {
         // Set the physics system
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
-
         this.createAssets()
         this.playStart();
 
@@ -151,7 +208,7 @@ var mainState = {
         this.trump.body.gravity.y = 1000;
         this.hands.body.gravity.y = 1000;
 
-        // Call the 'jump' function when the spacekey is hit
+        // Call the 'jump' function when the `key is hit
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
@@ -282,7 +339,10 @@ var mainState = {
         var style = { font: "bold 16px Arial", fill: "#111",
             wordWrap: true, wordWrapWidth: 300,
             boundsAlignH: "left", boundsAlignV: "middle" };
-        textSub = game.add.text(0, 0, "PRESS SPACE TO DO BETTER NEXT TIME", style);
+        if (game.device.desktop)
+            textSub = game.add.text(0, 0, "PRESS SPACE TO MAKE GAMING GREAT AGAIN", style);
+        else
+            textSub = game.add.text(0, 0, "TAP TO MAKE GAMING GREAT AGAIN", style);
         textSub.setTextBounds(120, 400, 240, 100);
         deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){this.canRestart=true}, this);
 
@@ -328,7 +388,6 @@ var mainState = {
         this.labelScore.text = this.score;
     },
 };
-game = new Phaser.Game(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, Phaser.CANVAS, 'gameArea');
 var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
 Phaser.Device.whenReady(function () {
     game.plugins.add(Fabrique.Plugins.AdManager);
@@ -356,6 +415,7 @@ loadAds = function() {
     // });
 }
 // Add the 'mainState' and call it 'main'
+game.state.add('start',startState);
 game.state.add('main', mainState);
 // Start the state to actually start the game
-game.state.start('main');
+game.state.start('start');
