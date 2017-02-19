@@ -36,7 +36,7 @@ var startState = {
             game.scale.windowConstraints.bottom = 'visual'
         }
         else {
-            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
             // game.scale.pageAlignHorizontally = true;
             game.scale.windowConstraints.bottom = 'visual'
         }
@@ -103,7 +103,7 @@ var mainState = {
         game.scale.windowConstraints.bottom = 'visual'
     }
     else {
-        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
         // game.scale.pageAlignHorizontally = true;
         game.scale.windowConstraints.bottom = 'visual'
     }
@@ -114,7 +114,7 @@ var mainState = {
         game.load.spritesheet('trump-hands', 'assets/hands-small-anim.png', 80, 41);
         game.load.image('bricks', 'assets/bricks.jpg');
         game.load.image('trump_dead', 'assets/trumpfacedead.png');
-
+        game.load.image('dollar','assets/dollar.png');
         //on jump sounds
         game.load.audio('trump1', 'assets/trump1.wav');
         game.load.audio('trump2', 'assets/trump2.wav');
@@ -192,6 +192,10 @@ var mainState = {
         // Set the physics system
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
+        //lastHole and nextHole start out in same location as trump
+        this.lastHole = 245;
+        this.nextHole = 245;
+
         this.createAssets()
         this.playStart();
 
@@ -215,6 +219,28 @@ var mainState = {
         this.trump.animations.play('mouthfull');
         this.lastSoundTimer = game.time.now;
         this.lastSoundLength = startSoundLength;
+    },
+    createDollar: function(x,y) {
+
+        var dollar = game.add.sprite(x, y, 'dollar');
+        dollar.height = 30;
+        dollar.width = 60;
+        // Add the pipe to our previously created group
+        this.dollars.add(dollar);
+
+        // Enable physics on the pipe
+        game.physics.arcade.enable(dollar);
+
+        // Add velocity to the pipe to make it move left
+        dollar.body.velocity.x = -200;
+
+        // Automatically kill the pipe when it's no longer visible
+        dollar.checkWorldBounds = true;
+        dollar.outOfBoundsKill = true;
+    },
+    createCollectible: function() {
+
+        this.createDollar(game.width,245);
     },
     createAssets: function() {
         this.trump = game.add.sprite(100, 245, 'trump');
@@ -243,8 +269,11 @@ var mainState = {
 
         // Create an empty group
         this.pipes = game.add.group();
+        this.dollars = game.add.group();
 
-        this.timer = game.time.events.loop(2200, this.addRowOfPipes, this);
+        this.timer = game.time.events.loop(2400, this.addRowOfPipes, this);
+        this.moneyTimer = game.time.events.loop(600, this.createCollectible, this);
+
 
         this.score = 0;
         var style = { font: "bold 36px Arial", fill: "#FFF",
@@ -258,6 +287,9 @@ var mainState = {
         // Move the anchor to the left and downward
         this.trump.anchor.setTo(-0.2, 0.5);
     },
+    collectDollar: function() {
+      console.log("dollarCollected");
+    },
     update: function() {
         // This function is called 60 times per second
         // It contains the game's logic
@@ -269,6 +301,8 @@ var mainState = {
 
         game.physics.arcade.overlap(
             this.trump, this.pipes, this.gameOver, null, this);
+        game.physics.arcade.overlap(
+            this.trump, this.dollars, this.collectDollar, null, this);
         this.trump.checkWorldBounds = true;
         this.trump.events.onOutOfBounds.add(this.gameOver, this);
 
@@ -343,9 +377,13 @@ var mainState = {
 
         // Prevent new pipes from appearing
         game.time.events.remove(this.timer);
+        game.time.events.remove(this.moneyTimer);
 
         // Go through all the pipes, and stop their movement
         this.pipes.forEach(function(p){
+            p.body.velocity.x = 0;
+        }, this);
+        this.dollars.forEach(function(p){
             p.body.velocity.x = 0;
         }, this);
 
