@@ -70,13 +70,15 @@ var startState = {
         if (game.device.desktop)
             textSub = game.add.text(0, 0, "PRESS SPACE TO FLAP WITH YOUR TINY HANDS", style);
         else
-            textSub = game.add.text(0, 0, "TAP TO DO FLAP WITH YOUR TINY HANDS", style);
+            textSub = game.add.text(0, 0, "TAP TO FLAP WITH YOUR TINY HANDS", style);
 
             textSub.setTextBounds(110, 400, 300, 100);
 
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(function(){game.state.start('main')}, this);
+        game.input.onTap.add(function(){game.state.start('main')}, this);
+
     },
 
     update: function() {
