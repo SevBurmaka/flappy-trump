@@ -24,6 +24,7 @@ var getRandomEndText = function(){
 deathMax = 3;
 deathCount = 0;
 
+
 // Create our 'main' state that will contain the game
 var mainState = {
     init: function() {
@@ -45,7 +46,10 @@ var mainState = {
         game.load.image('bricks', 'assets/bricks.jpg');
         game.load.image('trump_dead', 'assets/trumpfacedead.png');
 
-        game.load.audio('jump', 'assets/jump.wav');
+        game.load.audio('bing1', 'assets/bing1.wav');
+        game.load.audio('bing2', 'assets/bing2.wav');
+        game.load.audio('bing3', 'assets/bing3.wav');
+        game.load.audio('bing4', 'assets/bing4.wav');
     },
 
 
@@ -53,7 +57,14 @@ var mainState = {
         // This function is called after the preload function
         // Here we set up the game, display sprites, etc.
 
-        this.jumpSound = game.add.audio('jump');
+        this.bing = [
+            game.add.audio('bing1'),
+            game.add.audio('bing2'),
+            game.add.audio('bing3'),
+            game.add.audio('bing4'),
+        ];
+        this.jumpCount = 0;
+        this.bingTimer = game.time.now;
 
         // Change the background color of the game to blue
         game.stage.backgroundColor = '#71c5cf';
@@ -65,11 +76,21 @@ var mainState = {
         this.createAssets()
 
     },
+    playBing: function(){
+        if (game.time.now - this.bingTimer > 300) {
+            this.bing[this.jumpCount].play()
+            this.jumpCount++;
+            if (this.jumpCount >= this.bing.length)
+                this.jumpCount = 0;
+
+            this.trump.animations.play('bing');
+            this.bingTimer = game.time.now;
+        }
+    },
     createAssets: function() {
         this.trump = game.add.sprite(100, 245, 'trump');
-        this.trump.frame = 3;
-        this.trump.animations.add('fly', [0, 1, 2, 3,4,5], 10, true);
-        this.trump.animations.play('fly');
+        this.trump.frame = 1;
+        this.trump.animations.add('bing', [1,2, 3,4], 10, false);
         this.hands = game.add.sprite(94,254,'trump-hands');
         this.hands.frame=0;
         this.hands.animations.add('flap',[0,1,2,3], 10, true);
@@ -92,7 +113,7 @@ var mainState = {
         // Create an empty group
         this.pipes = game.add.group();
 
-        this.timer = game.time.events.loop(1500, this.addRowOfPipes, this);
+        this.timer = game.time.events.loop(2000, this.addRowOfPipes, this);
 
         this.score = 0;
         var style = { font: "bold 36px Arial", fill: "#FFF",
@@ -112,7 +133,7 @@ var mainState = {
 
         // If the bird is out of the screen (too high or too low)
         // Call the 'restartGame' function
-        if (this.trump.y < 0 || this.trump.y > 640)
+        if (this.trump.y < 0 || this.trump.y > game.height)
             this.gameOver();
 
         game.physics.arcade.overlap(
@@ -127,21 +148,21 @@ var mainState = {
     },
     onDeath: function(){
         if (deathCount >= deathMax) {
-            loadAds()
-            console.log("requesting ad")
-            if (game.device.desktop) {
-                //This is how we request an ad for desktop
-                game.ads.requestAd({
-                    deployment: 'devsite',
-                    sample_ct: 'skippablenonlinear'
-                });
-            } else {
-                //In mobile we need to activate it by user input
-                game.ads.requestAd({
-                    deployment: 'devsite',
-                    sample_ct: (this.game.device.iPhone) ? 'linear' : 'skippablelinear' //Iphone doesn't support skippable videos
-                });
-            }
+            // loadAds()
+            // console.log("requesting ad")
+            // if (game.device.desktop) {
+            //     //This is how we request an ad for desktop
+            //     game.ads.requestAd({
+            //         deployment: 'devsite',
+            //         sample_ct: 'skippablenonlinear'
+            //     });
+            // } else {
+            //     //In mobile we need to activate it by user input
+            //     game.ads.requestAd({
+            //         deployment: 'devsite',
+            //         sample_ct: (this.game.device.iPhone) ? 'linear' : 'skippablelinear' //Iphone doesn't support skippable videos
+            //     });
+            // }
         }
     },
     // Make the bird jump
@@ -156,7 +177,8 @@ var mainState = {
             }
             return;
         }
-        this.jumpSound.play();
+        this.playBing();
+
         // Add a vertical velocity to the bird
         this.trump.body.velocity.y = -350;
         this.hands.body.velocity.y = -350;
@@ -246,11 +268,11 @@ var mainState = {
             return
         // Randomly pick a number between 1 and 5
         // This will be the hole position
-        var hole = Math.floor(Math.random() * 5) + 1;
+        var hole = Math.floor(Math.random() * 6) + 1;
 
         // Add the 6 pipes
         // With one big hole at position 'hole' and 'hole + 1'
-        for (var i = 0; i < 9; i++)
+        for (var i = 0; i < 11; i++)
             if (i != hole && i != hole + 1)
                 this.addOnePipe(game.width, i * 80);
 
@@ -259,31 +281,31 @@ var mainState = {
     },
 };
 
-var game = new Phaser.Game(500, 640,Phaser.AUTO, 'game-container');
+var game = new Phaser.Game(500, 888,Phaser.AUTO, 'game-container');
 Phaser.Device.whenReady(function () {
     game.plugins.add(Fabrique.Plugins.AdManager);
-    loadAds();
+    // loadAds();
 
 });
 
 loadAds = function() {
-    game.ads.setAdProvider(new Fabrique.AdProvider.AdSense(
-        game,
-        'game-container',
-        'ad-container',
-        'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
-    ));
-    //Content paused event is fired when the content (game) should be paused, and the ad will be played
-    game.ads.onContentPaused.add(function () {
-        // game.paused=true;
-        console.log('Started playing add');
-    });
-
-    //This is fired when the ad is finished playing and the content (game) should be resumed
-    game.ads.onContentResumed.add(function () {
-        // game.paused=false;
-        console.log('Finished playing add');
-    });
+    // game.ads.setAdProvider(new Fabrique.AdProvider.AdSense(
+    //     game,
+    //     'game-container',
+    //     'ad-container',
+    //     'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
+    // ));
+    // //Content paused event is fired when the content (game) should be paused, and the ad will be played
+    // game.ads.onContentPaused.add(function () {
+    //     // game.paused=true;
+    //     console.log('Started playing add');
+    // });
+    //
+    // //This is fired when the ad is finished playing and the content (game) should be resumed
+    // game.ads.onContentResumed.add(function () {
+    //     // game.paused=false;
+    //     console.log('Finished playing add');
+    // });
 }
 // Add the 'mainState' and call it 'main'
 game.state.add('main', mainState);
