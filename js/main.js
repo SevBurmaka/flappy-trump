@@ -181,7 +181,7 @@ var mainState = {
             game.add.audio('suffer'),
             game.add.audio('words'),
             game.add.audio('friends'),
-            game.add.audio('greagain'),
+            game.add.audio('greatagain')
         ];
 
         this.lastSoundTimer = game.time.now;
