@@ -136,7 +136,6 @@ var mainState = {
         game.load.audio('bombthem','assets/startsounds/bombthem.wav');
         game.load.audio('greatwall','assets/startsounds/greatwall.wav');
         game.load.audio('lovemexican','assets/startsounds/lovemexican.wav');
-        game.load.audio('reallyrich','assets/startsounds/reallyrich.wav');
         game.load.audio('trumpx3','assets/startsounds/trumpx3.wav');
         game.load.audio('bingbong','assets/startsounds/bingbong.wav');
         game.load.audio('beatchina','assets/startsounds/beatchina.wav');
@@ -145,6 +144,10 @@ var mainState = {
         game.load.audio('words','assets/startsounds/words.wav');
         game.load.audio('friends','assets/startsounds/friends.wav');
         game.load.audio('greatagain','assets/startsounds/greatagain.wav');
+
+        //triggered sounds
+        game.load.audio('reallyrich','assets/reallyrich.wav');
+        game.load.audio('muchricher','assets/muchricher.wav');
 
     },
 
@@ -183,6 +186,10 @@ var mainState = {
             game.add.audio('friends'),
             game.add.audio('greatagain')
         ];
+        this.dollarCollectSounds = [
+            game.add.audio('reallyrich'),
+            game.add.audio('muchricher'),
+        ]
 
         this.lastSoundTimer = game.time.now;
         this.lastSoundLength = 0;
@@ -193,8 +200,9 @@ var mainState = {
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         //lastHole and nextHole start out in same location as trump
-        this.lastHole = 245;
-        this.nextHole = 245;
+        this.nextHole = Math.floor(Math.random() * 7) + 1;
+        this.nextHoleY = this.nextHole*80 + 80;
+        this.lastHoleY = 245;
 
         this.createAssets()
         this.playStart();
@@ -240,7 +248,8 @@ var mainState = {
     },
     createCollectible: function() {
 
-        this.createDollar(game.width,245);
+        y = this.nextHoleY;
+        this.createDollar(game.width,y);
     },
     createAssets: function() {
         this.trump = game.add.sprite(100, 245, 'trump');
@@ -287,8 +296,18 @@ var mainState = {
         // Move the anchor to the left and downward
         this.trump.anchor.setTo(-0.2, 0.5);
     },
-    collectDollar: function() {
-      console.log("dollarCollected");
+    collectDollar: function(trump, dollar) {
+        this.addScore(1);
+        dollar.kill()
+
+
+        if (this.score % 20 == 0){
+            this.dollarCollectSounds[Math.floor(Math.random()*this.dollarCollectSounds.length)].play()
+            this.trump.animations.play('mouthfull');
+            this.lastSoundTimer = game.time.now;
+            this.lastSoundLength = startSoundLength;
+        }
+
     },
     update: function() {
         // This function is called 60 times per second
@@ -311,6 +330,7 @@ var mainState = {
         if (this.hands.angle < 20)
             this.hands.angle += 1;
     },
+
     onDeath: function(){
         this.playLose();
         if (deathCount >= deathMax) {
@@ -353,7 +373,10 @@ var mainState = {
         game.add.tween(this.hands).to({angle: -20}, 100).start();
     },
 
-
+    addScore: function(amount) {
+        this.score += amount;
+        this.labelScore.text = this.score;
+    },
 
 // Restart the game
     restartGame: function() {
@@ -439,9 +462,11 @@ var mainState = {
     addRowOfPipes: function() {
         if (this.trump.alive == false)
             return
-        // Randomly pick a number between 1 and 5
         // This will be the hole position
-        var hole = Math.floor(Math.random() * 7) + 1;
+        var hole = this.nextHole;
+        this.lastHoleY =  hole * 80 + 80
+        this.nextHole = Math.floor(Math.random() * 7) + 1;
+        this.nextHoleY = this.nextHole * 80 + 80 ;
 
         // Add the 6 pipes
         // With one big hole at position 'hole' and 'hole + 1'
@@ -449,8 +474,7 @@ var mainState = {
             if (i != hole && i != hole + 1)
                 this.addOnePipe(game.width, i * 80);
 
-        this.score += 1;
-        this.labelScore.text = this.score;
+
     },
 };
 var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
