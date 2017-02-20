@@ -31,7 +31,7 @@ pipeTimer = 2400;
 collectibleTimer = 600;
 collectibleFrequency = pipeTimer / collectibleTimer;
 
-specialCollectibleFrequency = 2;
+specialCollectibleFrequency = 10;
 
 baseSpeed = -200;
 speedScale = 1;
