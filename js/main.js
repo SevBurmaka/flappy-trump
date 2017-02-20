@@ -14,9 +14,9 @@ var endText = ["WRONG","YOU ARE WORSE THAN CNN",
     "I REFUSE TO CALL YOU A BIMBO BECAUSE THAT WOULD NOT BE POLITICALLY CORRECT",
     "I'M GOING TO REPEAL AND REPLACE YOUR RIGHT TO PLAY THIS GAME",
     "I KNOW A LOT OF PEOPLE, TREMENDOUS PEOPLE, WHO COULD DO THIS BETTER",
-     "YOU WIN! #ALTERNATIVEFACTS",
+    "YOU WIN! #ALTERNATIVEFACTS",
     "THIS TRAIN WRECK WILL DRAW A CROWD BIGGER THAN MY TREMENDOUS INAUGURATION",
-"I'M NOT A PUPPET YOU'RE A PUPPET"]
+    "I'M NOT A PUPPET YOU'RE A PUPPET"]
 
 var getRandomEndText = function(){
     return endText[Math.floor(Math.random()*endText.length)]
@@ -26,6 +26,10 @@ deathCount = 0;
 trumpSoundLength = 300;
 startSoundLength = 3000;
 loseSoundLength = 1000;
+
+pipeTimer = 2400;
+collectibleTimer = 600;
+collectibleFrequency = pipeTimer / collectibleTimer;
 
 var startState = {
     init: function() {
@@ -96,19 +100,19 @@ var startState = {
 // Create our 'main' state that will contain the game
 var mainState = {
     init: function() {
-    game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
-    if (game.device.desktop) {
-        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        // game.scale.pageAlignHorizontally = true;
-        game.scale.windowConstraints.bottom = 'visual'
-    }
-    else {
-        game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
-        // game.scale.pageAlignHorizontally = true;
-        game.scale.windowConstraints.bottom = 'visual'
-    }
-    game.scale.updateLayout();
-},
+        game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+        if (game.device.desktop) {
+            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            // game.scale.pageAlignHorizontally = true;
+            game.scale.windowConstraints.bottom = 'visual'
+        }
+        else {
+            game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+            // game.scale.pageAlignHorizontally = true;
+            game.scale.windowConstraints.bottom = 'visual'
+        }
+        game.scale.updateLayout();
+    },
     preload: function() {
         game.load.spritesheet('trump', 'assets/trump-sprite.png', 50, 67);
         game.load.spritesheet('trump-hands', 'assets/hands-small-anim.png', 80, 41);
@@ -207,6 +211,8 @@ var mainState = {
         this.createAssets()
         this.playStart();
 
+        this.collectibleTick = 0;
+
     },
     playBing: function(){
         if (game.time.now - this.lastSoundTimer > this.lastSoundLength) {
@@ -217,10 +223,10 @@ var mainState = {
         }
     },
     playLose: function(){
-            this.loseSounds[Math.floor(Math.random()*this.loseSounds.length)].play()
-            this.trump.animations.play('mouthfull');
-            this.lastSoundTimer = game.time.now;
-            this.lastSoundLength = loseSoundLength;
+        this.loseSounds[Math.floor(Math.random()*this.loseSounds.length)].play()
+        this.trump.animations.play('mouthfull');
+        this.lastSoundTimer = game.time.now;
+        this.lastSoundLength = loseSoundLength;
     },
     playStart: function(){
         this.startSounds[Math.floor(Math.random()*this.startSounds.length)].play()
@@ -229,8 +235,14 @@ var mainState = {
         this.lastSoundLength = startSoundLength;
     },
     createDollar: function(x,y) {
-
-        var dollar = game.add.sprite(x, y, 'dollar');
+//add variance to y
+        //greater variance toward the middle
+        var middle = collectibleFrequency / 2;
+        var tick =  (this.collectibleTick + 1)
+        var modifier = middle - Math.abs(tick-middle)
+        var variance = (Math.floor(Math.random() * 200) - 100) * modifier
+        console.log( modifier)
+        var dollar = game.add.sprite(x, y + variance, 'dollar');
         dollar.height = 30;
         dollar.width = 60;
         // Add the pipe to our previously created group
@@ -247,9 +259,10 @@ var mainState = {
         dollar.outOfBoundsKill = true;
     },
     createCollectible: function() {
-
-        y = this.nextHoleY;
+        slope = (this.nextHoleY - this.lastHoleY) / (collectibleFrequency)
+        y = this.lastHoleY + (slope * (this.collectibleTick+1))
         this.createDollar(game.width,y);
+        this.collectibleTick = (this.collectibleTick + 1) % (collectibleFrequency);
     },
     createAssets: function() {
         this.trump = game.add.sprite(100, 245, 'trump');
@@ -280,8 +293,8 @@ var mainState = {
         this.pipes = game.add.group();
         this.dollars = game.add.group();
 
-        this.timer = game.time.events.loop(2400, this.addRowOfPipes, this);
-        this.moneyTimer = game.time.events.loop(600, this.createCollectible, this);
+        this.moneyTimer = game.time.events.loop(collectibleTimer, this.createCollectible, this);
+        this.timer = game.time.events.loop(pipeTimer, this.addRowOfPipes, this);
 
 
         this.score = 0;
@@ -299,7 +312,6 @@ var mainState = {
     collectDollar: function(trump, dollar) {
         this.addScore(1);
         dollar.kill()
-
 
         if (this.score % 20 == 0){
             this.dollarCollectSounds[Math.floor(Math.random()*this.dollarCollectSounds.length)].play()
