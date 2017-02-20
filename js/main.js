@@ -31,6 +31,11 @@ pipeTimer = 2400;
 collectibleTimer = 600;
 collectibleFrequency = pipeTimer / collectibleTimer;
 
+specialCollectibleFrequency = 2;
+
+baseSpeed = -200;
+speedScale = 1;
+
 var startState = {
     init: function() {
         game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
@@ -119,6 +124,7 @@ var mainState = {
         game.load.image('bricks', 'assets/bricks.jpg');
         game.load.image('trump_dead', 'assets/trumpfacedead.png');
         game.load.image('dollar','assets/dollar.png');
+        game.load.spritesheet('cat','assets/cat.png');
         //on jump sounds
         game.load.audio('trump1', 'assets/trump1.wav');
         game.load.audio('trump2', 'assets/trump2.wav');
@@ -152,6 +158,7 @@ var mainState = {
         //triggered sounds
         game.load.audio('reallyrich','assets/reallyrich.wav');
         game.load.audio('muchricher','assets/muchricher.wav');
+        game.load.audio("grabem",'assets/grabem.wav');
 
     },
 
@@ -194,6 +201,7 @@ var mainState = {
             game.add.audio('reallyrich'),
             game.add.audio('muchricher'),
         ]
+        this.grabem = game.add.audio('grabem');
 
         this.lastSoundTimer = game.time.now;
         this.lastSoundLength = 0;
@@ -212,6 +220,7 @@ var mainState = {
         this.playStart();
 
         this.collectibleTick = 0;
+        this.pipeCount = 0;
 
     },
     playBing: function(){
@@ -241,7 +250,6 @@ var mainState = {
         var tick =  (this.collectibleTick + 1)
         var modifier = middle - Math.abs(tick-middle)
         var variance = (Math.floor(Math.random() * 200) - 100) * modifier
-        console.log( modifier)
         var dollar = game.add.sprite(x, y + variance, 'dollar');
         dollar.height = 30;
         dollar.width = 60;
@@ -252,16 +260,43 @@ var mainState = {
         game.physics.arcade.enable(dollar);
 
         // Add velocity to the pipe to make it move left
-        dollar.body.velocity.x = -200;
+        dollar.body.velocity.x = baseSpeed * speedScale;
 
         // Automatically kill the pipe when it's no longer visible
         dollar.checkWorldBounds = true;
         dollar.outOfBoundsKill = true;
     },
+    createSpecialCollectible: function(x,y){
+        console.log("creating cat")
+
+        var collectible = game.add.sprite(x, y, 'cat');
+        // collectible.animations.add('catmove', [0,1,2, 3,4,5], 10, true);
+        // collectible.animations.play('catmove')
+
+        collectible.height = 40;
+        collectible.width = 60;
+        // Add the pipe to our previously created group
+        this.cats.add(collectible);
+
+        // Enable physics on the pipe
+        game.physics.arcade.enable(collectible);
+
+        // Add velocity to the pipe to make it move left
+        collectible.body.velocity.x = baseSpeed * speedScale;
+
+        // Automatically kill the pipe when it's no longer visible
+        collectible.checkWorldBounds = true;
+        collectible.outOfBoundsKill = true;
+    },
     createCollectible: function() {
         slope = (this.nextHoleY - this.lastHoleY) / (collectibleFrequency)
         y = this.lastHoleY + (slope * (this.collectibleTick+1))
-        this.createDollar(game.width,y);
+
+        if (this.collectibleTick == (collectibleFrequency - 1) && this.pipeCount > 0 && (this.pipeCount % specialCollectibleFrequency == 0) ){
+            this.createSpecialCollectible(game.width,y)
+        }
+        else this.createDollar(game.width,y);
+
         this.collectibleTick = (this.collectibleTick + 1) % (collectibleFrequency);
     },
     createAssets: function() {
@@ -292,6 +327,8 @@ var mainState = {
         // Create an empty group
         this.pipes = game.add.group();
         this.dollars = game.add.group();
+        this.cats = game.add.group();
+        this.mexicans = game.add.group();
 
         this.moneyTimer = game.time.events.loop(collectibleTimer, this.createCollectible, this);
         this.timer = game.time.events.loop(pipeTimer, this.addRowOfPipes, this);
@@ -321,6 +358,20 @@ var mainState = {
         }
 
     },
+    collectCat: function(trump, cat) {
+        this.addScore(10);
+        cat.kill()
+        console.log("collected cat")
+        this.grabem.play()
+        this.trump.animations.play('mouthfull');
+        this.lastSoundTimer = game.time.now;
+        this.lastSoundLength = startSoundLength;
+    },
+    collectMexican: function(trump, mexican) {
+        this.addScore(10);
+        mexican.kill()
+
+    },
     update: function() {
         // This function is called 60 times per second
         // It contains the game's logic
@@ -334,6 +385,11 @@ var mainState = {
             this.trump, this.pipes, this.gameOver, null, this);
         game.physics.arcade.overlap(
             this.trump, this.dollars, this.collectDollar, null, this);
+        game.physics.arcade.overlap(
+            this.trump, this.cats, this.collectCat, null, this);
+        game.physics.arcade.overlap(
+            this.trump, this.mexicans, this.collectMexican, null, this);
+
         this.trump.checkWorldBounds = true;
         this.trump.events.onOutOfBounds.add(this.gameOver, this);
 
@@ -421,6 +477,12 @@ var mainState = {
         this.dollars.forEach(function(p){
             p.body.velocity.x = 0;
         }, this);
+        this.cats.forEach(function(p){
+            p.body.velocity.x = 0;
+        }, this);
+        this.mexicans.forEach(function(p){
+            p.body.velocity.x = 0;
+        }, this);
 
         this.endBox = game.add.graphics();
         this.endBox.beginFill(0xFFFFFF, 0.8);
@@ -464,7 +526,7 @@ var mainState = {
         game.physics.arcade.enable(pipe);
 
         // Add velocity to the pipe to make it move left
-        pipe.body.velocity.x = -200;
+        pipe.body.velocity.x = baseSpeed * speedScale;
 
         // Automatically kill the pipe when it's no longer visible
         pipe.checkWorldBounds = true;
@@ -486,7 +548,7 @@ var mainState = {
             if (i != hole && i != hole + 1)
                 this.addOnePipe(game.width, i * 80);
 
-
+        this.pipeCount++;
     },
 };
 var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
