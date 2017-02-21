@@ -34,6 +34,7 @@ collectibleFrequency = pipeTimer / collectibleTimer;
 specialCollectibleFrequency = 10;
 
 baseSpeed = -200;
+maxSpeedScale = 1.5;
 
 var startState = {
     init: function() {
@@ -279,7 +280,7 @@ var mainState = {
 
         }
         else {
-           var collectible = game.add.sprite(x, y, 'mexican');
+            var collectible = game.add.sprite(x, y, 'mexican');
             collectible.height = 50;
             collectible.width = 70;
             this.mexicans.add(collectible)
@@ -346,10 +347,14 @@ var mainState = {
         var style = { font: "bold 36px Arial", fill: "#FFF",
             wordWrap: true, wordWrapWidth: 300,
             boundsAlignH: "center", boundsAlignV: "middle" };
-        this.labelScore = game.add.text(20, 20, "0",
+        this.labelScore = game.add.text(210, 20, "TRUMP:     0",
             style);
         this.labelScore.stroke = '#000000';
         this.labelScore.strokeThickness = 6;
+        this.labelScore2 = game.add.text(210, 55, "AMERICA: 0",
+            style);
+        this.labelScore2.stroke = '#000000';
+        this.labelScore2.strokeThickness = 6;
 
         // Move the anchor to the left and downward
         this.trump.anchor.setTo(-0.2, 0.5);
@@ -366,6 +371,10 @@ var mainState = {
         }
 
     },
+    incrementSpeedScale: function(){
+        if (this.speedScale < maxSpeedScale)
+            this.speedScale += 0.25
+    },
     collectCat: function(trump, cat) {
         this.addScore(10);
         cat.kill()
@@ -373,7 +382,7 @@ var mainState = {
         this.trump.animations.play('mouthfull');
         this.lastSoundTimer = game.time.now;
         this.lastSoundLength = startSoundLength;
-        this.speedScale += 0.25
+        this.incrementSpeedScale();
         this.skipNextWall = true;
 
     },
@@ -384,7 +393,7 @@ var mainState = {
         this.trump.animations.play('mouthfull');
         this.lastSoundTimer = game.time.now;
         this.lastSoundLength = startSoundLength;
-        this.speedScale += 0.25
+        this.incrementSpeedScale()
         this.skipNextWall = true;
 
     },
@@ -459,7 +468,8 @@ var mainState = {
 
     addScore: function(amount) {
         this.score += amount;
-        this.labelScore.text = this.score;
+        this.labelScore.text = "TRUMP:     "+this.score;
+        this.labelScore2.text = "AMERICA: -"+this.score;
     },
 
 // Restart the game
