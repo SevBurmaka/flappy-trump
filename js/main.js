@@ -124,6 +124,7 @@ var mainState = {
         game.load.image('trump_dead', 'assets/trumpfacedead.png');
         game.load.image('dollar','assets/dollar.png');
         game.load.spritesheet('cat','assets/cat.png');
+        game.load.image('mexican','assets/mexican.png');
         //on jump sounds
         game.load.audio('trump1', 'assets/trump1.wav');
         game.load.audio('trump2', 'assets/trump2.wav');
@@ -158,6 +159,7 @@ var mainState = {
         game.load.audio('reallyrich','assets/reallyrich.wav');
         game.load.audio('muchricher','assets/muchricher.wav');
         game.load.audio("grabem",'assets/grabem.wav');
+        game.load.audio("badhombres",'assets/badhombres.wav');
 
     },
 
@@ -201,6 +203,7 @@ var mainState = {
             game.add.audio('muchricher'),
         ]
         this.grabem = game.add.audio('grabem');
+        this.badhombres = game.add.audio('badhombres');
 
         this.lastSoundTimer = game.time.now;
         this.lastSoundLength = 0;
@@ -266,25 +269,28 @@ var mainState = {
         dollar.checkWorldBounds = true;
         dollar.outOfBoundsKill = true;
     },
-    createSpecialCollectible: function(x,y){
-        console.log("creating cat")
+    createSpecialCollectible: function(x,y) {
 
-        var collectible = game.add.sprite(x, y, 'cat');
-        // collectible.animations.add('catmove', [0,1,2, 3,4,5], 10, true);
-        // collectible.animations.play('catmove')
+        if (Math.floor(Math.random() * 2) == 1) {
+            var collectible = game.add.sprite(x, y, 'cat');
+            collectible.height = 40;
+            collectible.width = 60;
+            this.cats.add(collectible);
 
-        collectible.height = 40;
-        collectible.width = 60;
-        // Add the pipe to our previously created group
-        this.cats.add(collectible);
+        }
+        else {
+           var collectible = game.add.sprite(x, y, 'mexican');
+            collectible.height = 50;
+            collectible.width = 70;
+            this.mexicans.add(collectible)
+        }
 
-        // Enable physics on the pipe
+
+
         game.physics.arcade.enable(collectible);
 
-        // Add velocity to the pipe to make it move left
         collectible.body.velocity.x = baseSpeed * this.speedScale;
 
-        // Automatically kill the pipe when it's no longer visible
         collectible.checkWorldBounds = true;
         collectible.outOfBoundsKill = true;
     },
@@ -363,7 +369,6 @@ var mainState = {
     collectCat: function(trump, cat) {
         this.addScore(10);
         cat.kill()
-        console.log("collected cat")
         this.grabem.play()
         this.trump.animations.play('mouthfull');
         this.lastSoundTimer = game.time.now;
@@ -375,6 +380,12 @@ var mainState = {
     collectMexican: function(trump, mexican) {
         this.addScore(10);
         mexican.kill()
+        this.badhombres.play()
+        this.trump.animations.play('mouthfull');
+        this.lastSoundTimer = game.time.now;
+        this.lastSoundLength = startSoundLength;
+        this.speedScale += 0.25
+        this.skipNextWall = true;
 
     },
     update: function() {
