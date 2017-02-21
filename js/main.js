@@ -468,7 +468,7 @@ var mainState = {
 
     addScore: function(amount) {
         this.score += amount;
-        this.labelScore.text = "TRUMP:     "+this.score;
+        this.labelScore.text = "TRUMP:      "+this.score;
         this.labelScore2.text = "AMERICA: -"+this.score;
     },
 
