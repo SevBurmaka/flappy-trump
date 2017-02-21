@@ -344,7 +344,7 @@ var mainState = {
 
 
         this.score = 0;
-        var style = { font: "bold 36px Arial", fill: "#FFF",
+        var style = { font: "bold 30px Arial", fill: "#FFF",
             wordWrap: true, wordWrapWidth: 300,
             boundsAlignH: "center", boundsAlignV: "middle" };
         this.labelScore = game.add.text(210, 20, "TRUMP:     0",
