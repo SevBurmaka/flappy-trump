@@ -221,7 +221,7 @@ var mainState = {
         this.collectibleTick = 0;
         this.pipeCount = 0
         this.speedScale = 0.75;
-
+        this.skipNextWall = false;
     },
     playBing: function(){
         if (game.time.now - this.lastSoundTimer > this.lastSoundLength) {
@@ -287,18 +287,19 @@ var mainState = {
         // Automatically kill the pipe when it's no longer visible
         collectible.checkWorldBounds = true;
         collectible.outOfBoundsKill = true;
-        this.speedScale += 0.25
     },
     createCollectible: function() {
-        slope = (this.nextHoleY - this.lastHoleY) / (collectibleFrequency)
-        y = this.lastHoleY + (slope * (this.collectibleTick+1))
+        if (!this.skipNextWall) {
+            slope = (this.nextHoleY - this.lastHoleY) / (collectibleFrequency)
+            y = this.lastHoleY + (slope * (this.collectibleTick + 1))
 
-        if (this.collectibleTick == (collectibleFrequency - 1) && this.pipeCount > 0 && (this.pipeCount % specialCollectibleFrequency == 0) ){
-            this.createSpecialCollectible(game.width,y)
+            if (this.collectibleTick == (collectibleFrequency - 1) && this.pipeCount > 0 && (this.pipeCount % specialCollectibleFrequency == 0)) {
+                this.createSpecialCollectible(game.width, y)
+            }
+            else this.createDollar(game.width, y);
         }
-        else this.createDollar(game.width,y);
-
         this.collectibleTick = (this.collectibleTick + 1) % (collectibleFrequency);
+
     },
     createAssets: function() {
         this.trump = game.add.sprite(100, 245, 'trump');
@@ -367,6 +368,9 @@ var mainState = {
         this.trump.animations.play('mouthfull');
         this.lastSoundTimer = game.time.now;
         this.lastSoundLength = startSoundLength;
+        this.speedScale += 0.25
+        this.skipNextWall = true;
+
     },
     collectMexican: function(trump, mexican) {
         this.addScore(10);
@@ -545,16 +549,20 @@ var mainState = {
 
         // Add the 6 pipes
         // With one big hole at position 'hole' and 'hole + 1'
-        for (var i = 0; i < 12; i++)
-            if (this.pipeCount > 10 ) {
-                if (i != hole && i != hole + 1)
-                    this.addOnePipe(game.width, i * 80);
-            }
-            else{
-                if (i != hole && i != hole + 1 && i != hole - 1)
-                    this.addOnePipe(game.width, i * 80);
-            }
-
+        if (!this.skipNextWall) {
+            for (var i = 0; i < 12; i++)
+                if (this.pipeCount > 10) {
+                    if (i != hole && i != hole + 1)
+                        this.addOnePipe(game.width, i * 80);
+                }
+                else {
+                    if (i != hole && i != hole + 1 && i != hole - 1)
+                        this.addOnePipe(game.width, i * 80);
+                }
+        }
+        else{
+            this.skipNextWall = false;
+        }
         this.pipeCount++;
     },
 };
