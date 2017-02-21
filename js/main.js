@@ -34,7 +34,6 @@ collectibleFrequency = pipeTimer / collectibleTimer;
 specialCollectibleFrequency = 10;
 
 baseSpeed = -200;
-speedScale = 1;
 
 var startState = {
     init: function() {
@@ -220,7 +219,8 @@ var mainState = {
         this.playStart();
 
         this.collectibleTick = 0;
-        this.pipeCount = 0;
+        this.pipeCount = 0
+        this.speedScale = 0.75;
 
     },
     playBing: function(){
@@ -260,7 +260,7 @@ var mainState = {
         game.physics.arcade.enable(dollar);
 
         // Add velocity to the pipe to make it move left
-        dollar.body.velocity.x = baseSpeed * speedScale;
+        dollar.body.velocity.x = baseSpeed * this.speedScale;
 
         // Automatically kill the pipe when it's no longer visible
         dollar.checkWorldBounds = true;
@@ -282,11 +282,12 @@ var mainState = {
         game.physics.arcade.enable(collectible);
 
         // Add velocity to the pipe to make it move left
-        collectible.body.velocity.x = baseSpeed * speedScale;
+        collectible.body.velocity.x = baseSpeed * this.speedScale;
 
         // Automatically kill the pipe when it's no longer visible
         collectible.checkWorldBounds = true;
         collectible.outOfBoundsKill = true;
+        this.speedScale += 0.25
     },
     createCollectible: function() {
         slope = (this.nextHoleY - this.lastHoleY) / (collectibleFrequency)
@@ -526,7 +527,7 @@ var mainState = {
         game.physics.arcade.enable(pipe);
 
         // Add velocity to the pipe to make it move left
-        pipe.body.velocity.x = baseSpeed * speedScale;
+        pipe.body.velocity.x = baseSpeed * this.speedScale;
 
         // Automatically kill the pipe when it's no longer visible
         pipe.checkWorldBounds = true;
@@ -545,8 +546,14 @@ var mainState = {
         // Add the 6 pipes
         // With one big hole at position 'hole' and 'hole + 1'
         for (var i = 0; i < 12; i++)
-            if (i != hole && i != hole + 1)
-                this.addOnePipe(game.width, i * 80);
+            if (this.pipeCount > 10 ) {
+                if (i != hole && i != hole + 1)
+                    this.addOnePipe(game.width, i * 80);
+            }
+            else{
+                if (i != hole && i != hole + 1 && i != hole - 1)
+                    this.addOnePipe(game.width, i * 80);
+            }
 
         this.pipeCount++;
     },
