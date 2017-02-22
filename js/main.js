@@ -36,6 +36,24 @@ specialCollectibleFrequency = 10;
 baseSpeed = -200;
 maxSpeedScale = 1.5;
 
+var scoresDb = firebase.database();
+
+var postScore = function(user,score) {
+    var postData = {
+        name: user,
+        score: score
+    };
+
+    var newPostKey = firebase.database().ref().child('scores').push().key;
+
+    // Write the new post's data simultaneously in the posts list and the user's post list.
+    var updates = {};
+    updates['/scores/' + newPostKey] = postData;
+
+    return firebase.database().ref().update(updates);
+    scoresDb.push();
+};
+
 var startState = {
     init: function() {
         game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
@@ -426,6 +444,7 @@ var mainState = {
 
     onDeath: function(){
         this.playLose();
+        postScore('Trump',this.score)
         if (deathCount >= deathMax) {
             // loadAds()
             // console.log("requesting ad")
@@ -618,3 +637,5 @@ game.state.add('start',startState);
 game.state.add('main', mainState);
 // Start the state to actually start the game
 game.state.start('start');
+
+
