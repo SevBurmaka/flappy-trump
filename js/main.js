@@ -37,7 +37,29 @@ baseSpeed = -200;
 maxSpeedScale = 1.5;
 
 var scoresDb = firebase.database();
-
+var checkIsHighScore = function(score){
+    // var val = scoresDb.ref().child('scores').once('value').then(function(snapshot) {
+    //     snapshot.forEach(function(childSnapshot) {
+    //         var childKey = childSnapshot.key;
+    //         var childData = childSnapshot.val();
+    //         console.log(childKey+":"+childData);
+    //         childData.forEach(function(ch){
+    //             console.log(ch);
+    //         })
+    //     });
+    // });
+    scoresDb.ref().once('value', function(snapshot) {
+        snapshot.forEach(function(childSnapshot) {
+            var childKey = childSnapshot.key;
+            var childData = childSnapshot.val();
+            childData.forEach(function(c2) {
+                var childKey2 = c2.key;
+                var childData2 = c2.val();
+                console.log(childKey2+":"+childData2);
+            });
+        });
+        });
+}
 var postScore = function(user,score) {
     var postData = {
         name: user,
@@ -53,6 +75,71 @@ var postScore = function(user,score) {
     return firebase.database().ref().update(updates);
     scoresDb.push();
 };
+
+var leaderboard = {
+    init: function() {
+        game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+        if (game.device.desktop) {
+            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            // game.scale.pageAlignHorizontally = true;
+            game.scale.windowConstraints.bottom = 'visual'
+        }
+        else {
+            game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+            // game.scale.pageAlignHorizontally = true;
+            game.scale.windowConstraints.bottom = 'visual'
+        }
+        game.scale.updateLayout();
+    },
+    preload: function() {
+        game.load.spritesheet('trump', 'assets/trump-sprite.png', 50, 67);
+        game.load.spritesheet('trump-hands', 'assets/hands-small-anim.png', 80, 41);
+    },
+    create: function() {
+        game.stage.backgroundColor = '#71c5cf';
+
+        this.endBox = game.add.graphics();
+        this.endBox.beginFill(0xFFFFFF, 0.8);
+        this.endBox.lineStyle(10, 0x000000, 0.7);
+        this.endBox.drawRect(100, 200, 350, 550);
+
+        var style = { font: "bold 20px Arial", fill: "#fff",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "center", boundsAlignV: "middle" };
+        textMain = game.add.text(0, 0, 'TREMENDOUS PEOPLE', style);
+        textMain.stroke = '#000000';
+        textMain.strokeThickness = 6;
+        textMain.setTextBounds(120, 210, 300, 100);
+        textMain.setShadow(2, 2, 'rgba(0,0,0,0.5)', 2);
+
+
+        var style = { font: "bold 22px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "left", boundsAlignV: "middle" };
+        if (game.device.desktop)
+            textSub = game.add.text(0, 0, "PRESS SPACE TO FLAP WITH YOUR TINY HANDS", style);
+        else
+            textSub = game.add.text(0, 0, "TAP TO FLAP WITH YOUR TINY HANDS", style);
+
+        textSub.setTextBounds(110, 400, 300, 100);
+
+        var style = {  font: "20px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "left", boundsAlignV: "middle" };
+
+        soundText = game.add.text(0, 0, "BEST WITH SOUND ON", style);
+        soundText.setTextBounds(110, 480, 300, 100);
+        var spaceKey = game.input.keyboard.addKey(
+            Phaser.Keyboard.SPACEBAR);
+        spaceKey.onDown.add(function(){game.state.start('main')}, this);
+        game.input.onTap.add(function(){game.state.start('main')}, this);
+
+    },
+
+    update: function() {
+
+    }
+}
 
 var startState = {
     init: function() {
@@ -444,7 +531,8 @@ var mainState = {
 
     onDeath: function(){
         this.playLose();
-        postScore('Trump',this.score)
+        checkIsHighScore(this.score)
+        game.state.start('leaderboard')
         if (deathCount >= deathMax) {
             // loadAds()
             // console.log("requesting ad")
@@ -634,6 +722,7 @@ loadAds = function() {
 }
 // Add the 'mainState' and call it 'main'
 game.state.add('start',startState);
+game.state.add('leaderboard',leaderboard);
 game.state.add('main', mainState);
 // Start the state to actually start the game
 game.state.start('start');
