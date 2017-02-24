@@ -436,7 +436,7 @@ var mainState = {
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
-        game.input.onTap.add(this.jump, this);
+        game.input.onDown.add(this.jump, this);
 
         // Create an empty group
         this.pipes = game.add.group();
@@ -532,7 +532,7 @@ var mainState = {
     onDeath: function(){
         this.playLose();
         checkIsHighScore(this.score)
-        game.state.start('leaderboard')
+        // game.state.start('leaderboard')
         if (deathCount >= deathMax) {
             // loadAds()
             // console.log("requesting ad")
@@ -722,7 +722,7 @@ loadAds = function() {
 }
 // Add the 'mainState' and call it 'main'
 game.state.add('start',startState);
-game.state.add('leaderboard',leaderboard);
+// game.state.add('leaderboard',leaderboard);
 game.state.add('main', mainState);
 // Start the state to actually start the game
 game.state.start('start');
