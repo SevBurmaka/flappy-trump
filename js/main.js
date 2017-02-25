@@ -156,10 +156,10 @@ var startState = {
         this.endBox.lineStyle(10, 0x000000, 0.7);
         this.endBox.drawRect(100, 200, 300, 350);
 
-        var style = { font: "bold 50px Arial", fill: "#fff",
+        var style = { font: "bold 40px Arial", fill: "#fff",
             wordWrap: true, wordWrapWidth: 290,
             boundsAlignH: "center", boundsAlignV: "middle" };
-        textMain = game.add.text(0, 0, 'FLAPPY TRUMP', style);
+        textMain = game.add.text(0, 0, 'TINY HANDS', style);
         textMain.stroke = '#000000';
         textMain.strokeThickness = 6;
         textMain.setTextBounds(110, 260, 300, 100);
@@ -170,11 +170,11 @@ var startState = {
             wordWrap: true, wordWrapWidth: 290,
             boundsAlignH: "left", boundsAlignV: "middle" };
         if (game.device.desktop)
-            textSub = game.add.text(0, 0, "PRESS SPACE TO FLAP WITH YOUR TINY HANDS", style);
+            textSub = game.add.text(0, 0, "PRESS SPACE TO FLAP", style);
         else
-            textSub = game.add.text(0, 0, "TAP TO FLAP WITH YOUR TINY HANDS", style);
+            textSub = game.add.text(0, 0, "TAP TO FLAP ", style);
 
-        textSub.setTextBounds(110, 400, 300, 100);
+        textSub.setTextBounds(120, 400, 300, 100);
 
         var style = {  font: "20px Arial", fill: "#111",
             wordWrap: true, wordWrapWidth: 290,
