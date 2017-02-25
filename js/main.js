@@ -38,32 +38,24 @@ maxSpeedScale = 1.5;
 
 var scoresDb = firebase.database();
 var checkIsHighScore = function(score){
-    // var val = scoresDb.ref().child('scores').once('value').then(function(snapshot) {
-    //     snapshot.forEach(function(childSnapshot) {
-    //         var childKey = childSnapshot.key;
-    //         var childData = childSnapshot.val();
-    //         console.log(childKey+":"+childData);
-    //         childData.forEach(function(ch){
-    //             console.log(ch);
-    //         })
-    //     });
-    // });
-    scoresDb.ref().once('value', function(snapshot) {
+    firebase.database().ref().child('scores').orderByValue().on('value', function (snapshot) {
+        snapshot.val();
+    });
+
+    var val = scoresDb.ref().child('scores').once('value').then(function(snapshot) {
         snapshot.forEach(function(childSnapshot) {
             var childKey = childSnapshot.key;
             var childData = childSnapshot.val();
-            childData.forEach(function(c2) {
-                var childKey2 = c2.key;
-                var childData2 = c2.val();
-                console.log(childKey2+":"+childData2);
-            });
+            console.log(childData['name'] + " : "+childData['score']);
         });
-        });
+    });
+
 }
 var postScore = function(user,score) {
     var postData = {
         name: user,
-        score: score
+        score: score,
+        ".priority":  score
     };
 
     var newPostKey = firebase.database().ref().child('scores').push().key;
