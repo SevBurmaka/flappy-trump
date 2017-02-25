@@ -41,13 +41,29 @@ var checkIsHighScore = function(score){
 
     var val = scoresDb.ref().child('scores').limitToFirst(10).once('value').then(function(snapshot) {
         snapshot.forEach(function(childSnapshot) {
-            var childKey = childSnapshot.key;
             var childData = childSnapshot.val();
-            console.log(childData['name'] + " : "+childData['score']);
         });
     });
 
 }
+
+var getHighScores = function() {
+     return scoresDb.ref().child('scores').limitToFirst(10).once('value').then(function(snapshot) {
+         var scores = []
+
+         snapshot.forEach(function(childSnapshot) {
+            scores.push(childSnapshot.val())
+        });
+        return scores
+    });
+}
+
+var addLeaderboardItem = function(y, name, score,style){
+    console.log(score)
+    soundText = game.add.text(0, 0, name+" : "+score, style);
+    soundText.setTextBounds(110, y, 300, 100);
+}
+
 var postScore = function(user,score) {
     var postData = {
         name: user,
@@ -100,23 +116,19 @@ var leaderboard = {
         textMain.setTextBounds(120, 210, 300, 100);
         textMain.setShadow(2, 2, 'rgba(0,0,0,0.5)', 2);
 
-
-        var style = { font: "bold 22px Arial", fill: "#111",
-            wordWrap: true, wordWrapWidth: 290,
-            boundsAlignH: "left", boundsAlignV: "middle" };
-        if (game.device.desktop)
-            textSub = game.add.text(0, 0, "PRESS SPACE TO FLAP WITH YOUR TINY HANDS", style);
-        else
-            textSub = game.add.text(0, 0, "TAP TO FLAP WITH YOUR TINY HANDS", style);
-
-        textSub.setTextBounds(110, 400, 300, 100);
-
         var style = {  font: "20px Arial", fill: "#111",
             wordWrap: true, wordWrapWidth: 290,
             boundsAlignH: "left", boundsAlignV: "middle" };
 
-        soundText = game.add.text(0, 0, "BEST WITH SOUND ON", style);
-        soundText.setTextBounds(110, 480, 300, 100);
+       var startingY = 250;
+
+        var leaders = getHighScores().then(function(scores){
+            scores.forEach(function(score){
+                addLeaderboardItem(startingY,score['name'],score['score'],style)
+                startingY+=25;
+            })
+        })
+
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(function(){game.state.start('main')}, this);
