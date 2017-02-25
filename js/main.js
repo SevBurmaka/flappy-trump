@@ -38,11 +38,8 @@ maxSpeedScale = 1.5;
 
 var scoresDb = firebase.database();
 var checkIsHighScore = function(score){
-    firebase.database().ref().child('scores').orderByValue().on('value', function (snapshot) {
-        snapshot.val();
-    });
 
-    var val = scoresDb.ref().child('scores').once('value').then(function(snapshot) {
+    var val = scoresDb.ref().child('scores').limitToFirst(10).once('value').then(function(snapshot) {
         snapshot.forEach(function(childSnapshot) {
             var childKey = childSnapshot.key;
             var childData = childSnapshot.val();
@@ -55,17 +52,16 @@ var postScore = function(user,score) {
     var postData = {
         name: user,
         score: score,
-        ".priority":  score
+        ".priority" : -1 * score
     };
 
-    var newPostKey = firebase.database().ref().child('scores').push().key;
+    var newPostKey = scoresDb.ref().child('scores').push().key;
 
     // Write the new post's data simultaneously in the posts list and the user's post list.
     var updates = {};
     updates['/scores/' + newPostKey] = postData;
 
-    return firebase.database().ref().update(updates);
-    scoresDb.push();
+    return scoresDb.ref().update(updates);
 };
 
 var leaderboard = {
@@ -524,7 +520,8 @@ var mainState = {
     onDeath: function(){
         this.playLose();
         checkIsHighScore(this.score)
-        // game.state.start('leaderboard')
+        postScore('Trump',this.score);
+        game.state.start('leaderboard')
         if (deathCount >= deathMax) {
             // loadAds()
             // console.log("requesting ad")
@@ -714,7 +711,7 @@ loadAds = function() {
 }
 // Add the 'mainState' and call it 'main'
 game.state.add('start',startState);
-// game.state.add('leaderboard',leaderboard);
+game.state.add('leaderboard',leaderboard);
 game.state.add('main', mainState);
 // Start the state to actually start the game
 game.state.start('start');
