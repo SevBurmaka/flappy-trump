@@ -21,6 +21,7 @@ var endText = ["WRONG","YOU ARE WORSE THAN CNN",
 var getRandomEndText = function(){
     return endText[Math.floor(Math.random()*endText.length)]
 }
+
 deathMax = 3;
 deathCount = 0;
 trumpSoundLength = 300;
@@ -35,8 +36,10 @@ specialCollectibleFrequency = 10;
 
 baseSpeed = -200;
 maxSpeedScale = 1.5;
+var globalScore = 0;
 
 var scoresDb = firebase.database();
+
 var checkIsHighScore = function(score){
     return getHighScores().then(function (scores){
         return (scores.length < 15 || scores.slice(-1)[0]['score'] < score)
@@ -79,6 +82,75 @@ var postScore = function(user,score) {
 
     return scoresDb.ref().update(updates);
 };
+
+var highScore = {
+    init: function() {
+        game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+        if (game.device.desktop) {
+            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            // game.scale.pageAlignHorizontally = true;
+            game.scale.windowConstraints.bottom = 'visual'
+        }
+        else {
+            game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+            // game.scale.pageAlignHorizontally = true;
+            game.scale.windowConstraints.bottom = 'visual'
+        }
+        game.scale.updateLayout();
+    },
+    preload: function() {
+        game.load.spritesheet('trump', 'assets/trump-sprite.png', 50, 67);
+        game.load.spritesheet('trump-hands', 'assets/hands-small-anim.png', 80, 41);
+    },
+    create: function() {
+        game.stage.backgroundColor = '#71c5cf';
+
+        this.endBox = game.add.graphics();
+        this.endBox.beginFill(0xFFFFFF, 0.8);
+        this.endBox.lineStyle(10, 0x000000, 0.7);
+        this.endBox.drawRect(100, 200, 350, 350);
+
+        var style = { font: "bold 20px Arial", fill: "#fff",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "center", boundsAlignV: "middle" };
+        textMain = game.add.text(0, 0, 'YOU SUCCEEDED BIGLY!', style);
+        textMain.stroke = '#000000';
+        textMain.strokeThickness = 6;
+        textMain.setTextBounds(120, 210, 300, 100);
+        textMain.setShadow(2, 2, 'rgba(0,0,0,0.5)', 2);
+
+        var style = {  font: "20px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "left", boundsAlignV: "middle" };
+        nameText = game.add.text(0, 0, 'NAME: ', style);
+        nameText.setTextBounds(150, 270, 300, 100);
+
+        var input = game.add.inputField(150, 340,{
+            placeHolder: 'Trump',
+            max: 10,
+            height : 32,
+            font: "30px Arial"
+        });
+        input.startFocus();
+
+        var enterScore = function(){
+            if (input.value.length > 0) {
+                postScore(input.value, globalScore);
+                game.state.start('leaderboard');
+            }
+        }
+
+        var enterKey = game.input.keyboard.addKey(
+            Phaser.Keyboard.ENTER);
+        enterKey.onDown.add(enterScore, this);
+    },
+
+
+
+    update: function() {
+
+    }
+}
 
 var leaderboard = {
     init: function() {
@@ -535,8 +607,8 @@ var mainState = {
         var score = this.score
         checkIsHighScore(this.score).then(function(isHighScore){
             if (isHighScore){
-                postScore('Trump',score);
-                game.state.start('leaderboard')
+                globalScore = score;
+                game.state.start('highScore')
             }
         })
         if (deathCount >= deathMax) {
@@ -703,8 +775,9 @@ var mainState = {
 var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
 Phaser.Device.whenReady(function () {
     game.plugins.add(Fabrique.Plugins.AdManager);
-    // loadAds();
+    game.add.plugin(PhaserInput.Plugin);
 
+    // loadAds();
 });
 
 loadAds = function() {
@@ -729,6 +802,7 @@ loadAds = function() {
 // Add the 'mainState' and call it 'main'
 game.state.add('start',startState);
 game.state.add('leaderboard',leaderboard);
+game.state.add('highScore',highScore);
 game.state.add('main', mainState);
 // Start the state to actually start the game
 game.state.start('start');
