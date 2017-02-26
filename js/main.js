@@ -38,20 +38,16 @@ maxSpeedScale = 1.5;
 
 var scoresDb = firebase.database();
 var checkIsHighScore = function(score){
-
-    var val = scoresDb.ref().child('scores').limitToFirst(10).once('value').then(function(snapshot) {
-        snapshot.forEach(function(childSnapshot) {
-            var childData = childSnapshot.val();
-        });
-    });
-
+    return getHighScores().then(function (scores){
+        return (scores.length < 15 || scores.slice(-1)[0]['score'] < score)
+    })
 }
 
 var getHighScores = function() {
-     return scoresDb.ref().child('scores').limitToFirst(15).once('value').then(function(snapshot) {
-         var scores = []
+    return scoresDb.ref().child('scores').limitToFirst(15).once('value').then(function(snapshot) {
+        var scores = []
 
-         snapshot.forEach(function(childSnapshot) {
+        snapshot.forEach(function(childSnapshot) {
             scores.push(childSnapshot.val())
         });
         return scores
@@ -59,7 +55,6 @@ var getHighScores = function() {
 }
 
 var addLeaderboardItem = function(y,count, name, score,style){
-    console.log(score)
     countText = game.add.text(0, 0, count, style);
     countText.setTextBounds(150, y, 100, 100);
     nameText = game.add.text(0, 0, name, style);
@@ -125,9 +120,9 @@ var leaderboard = {
             wordWrap: true, wordWrapWidth: 290,
             boundsAlignH: "left", boundsAlignV: "middle" };
 
-       var startingY = 250;
+        var startingY = 250;
         var count = 1;
-        var leaders = getHighScores().then(function(scores){
+        getHighScores().then(function(scores){
             scores.forEach(function(score){
                 addLeaderboardItem(startingY,count,score['name'],score['score'],style)
                 startingY+=25;
@@ -138,7 +133,7 @@ var leaderboard = {
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(function(){game.state.start('main')}, this);
-        game.input.onTap.add(function(){game.state.start('main')}, this);
+        game.input.onDown.add(function(){game.state.start('main')}, this);
 
     },
 
@@ -536,10 +531,14 @@ var mainState = {
     },
 
     onDeath: function(){
-        this.playLose();
-        checkIsHighScore(this.score)
-        postScore('Trump',this.score);
-        game.state.start('leaderboard')
+        this.playLose();//@todo play a "win" soundbite if is a high score
+        var score = this.score
+        checkIsHighScore(this.score).then(function(isHighScore){
+            if (isHighScore){
+                postScore('Trump',score);
+                game.state.start('leaderboard')
+            }
+        })
         if (deathCount >= deathMax) {
             // loadAds()
             // console.log("requesting ad")
