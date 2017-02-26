@@ -48,7 +48,7 @@ var checkIsHighScore = function(score){
 }
 
 var getHighScores = function() {
-     return scoresDb.ref().child('scores').limitToFirst(10).once('value').then(function(snapshot) {
+     return scoresDb.ref().child('scores').limitToFirst(15).once('value').then(function(snapshot) {
          var scores = []
 
          snapshot.forEach(function(childSnapshot) {
@@ -58,10 +58,15 @@ var getHighScores = function() {
     });
 }
 
-var addLeaderboardItem = function(y, name, score,style){
+var addLeaderboardItem = function(y,count, name, score,style){
     console.log(score)
-    soundText = game.add.text(0, 0, name+" : "+score, style);
-    soundText.setTextBounds(110, y, 300, 100);
+    countText = game.add.text(0, 0, count, style);
+    countText.setTextBounds(150, y, 100, 100);
+    nameText = game.add.text(0, 0, name, style);
+    nameText.setTextBounds(200, y, 100, 100);
+    scoreText = game.add.text(0, 0, score, style);
+    scoreText.setTextBounds(300, y, 100, 100);
+
 }
 
 var postScore = function(user,score) {
@@ -121,11 +126,12 @@ var leaderboard = {
             boundsAlignH: "left", boundsAlignV: "middle" };
 
        var startingY = 250;
-
+        var count = 1;
         var leaders = getHighScores().then(function(scores){
             scores.forEach(function(score){
-                addLeaderboardItem(startingY,score['name'],score['score'],style)
+                addLeaderboardItem(startingY,count,score['name'],score['score'],style)
                 startingY+=25;
+                count++;
             })
         })
 
