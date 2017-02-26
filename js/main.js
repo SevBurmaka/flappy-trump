@@ -126,7 +126,6 @@ var highScore = {
         nameText.setTextBounds(150, 270, 300, 100);
 
         var input = game.add.inputField(150, 340,{
-            placeHolder: 'Trump',
             max: 10,
             height : 32,
             font: "30px Arial"
@@ -140,6 +139,18 @@ var highScore = {
             }
         }
 
+        var style = {  font: "30px Arial", fill: "#111",
+            wordWrap: true, wordWrapWidth: 290,
+            boundsAlignH: "left", boundsAlignV: "middle" };
+        this.enterBox = game.add.graphics();
+        this.enterBox.beginFill(0xFFFFFF, 0.8);
+        this.enterBox.lineStyle(2, 0x000000, 0.7);
+        this.enterBox.drawRect(150, 400, 120, 40);
+        enterText = game.add.text(0, 0, 'ENTER ', style);
+        enterText.setTextBounds(160, 425, 80, 40);
+
+        this.enterBox.inputEnabled = true;
+        this.enterBox.events.onInputDown.add(enterScore,this)
         var enterKey = game.input.keyboard.addKey(
             Phaser.Keyboard.ENTER);
         enterKey.onDown.add(enterScore, this);
