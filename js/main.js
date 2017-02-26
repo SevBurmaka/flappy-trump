@@ -21,7 +21,7 @@ var endText = ["WRONG","YOU ARE WORSE THAN CNN",
 var getRandomEndText = function(){
     return endText[Math.floor(Math.random()*endText.length)]
 }
-
+canRestart = false;
 deathMax = 3;
 deathCount = 0;
 trumpSoundLength = 300;
@@ -65,6 +65,26 @@ var addLeaderboardItem = function(y,count, name, score,style){
     scoreText = game.add.text(0, 0, score, style);
     scoreText.setTextBounds(300, y, 100, 100);
 
+}
+
+var createLeaderboardButton = function (x,y) {
+    var style = {  font: "30px Arial", fill: "#111",
+        wordWrap: true, wordWrapWidth: 290,
+        boundsAlignH: "left", boundsAlignV: "middle" };
+    this.leaderboardBox = game.add.graphics();
+    this.leaderboardBox.beginFill(0xFFFFFF, 0.8);
+    this.leaderboardBox.lineStyle(2, 0x000000, 0.7);
+    this.leaderboardBox.drawRect(x, y, 250, 40);
+    leaderboardText = game.add.text(0, 0, 'VIEW LEADERS', style);
+    leaderboardText.setTextBounds(x+10, y+5, 260, 40);
+
+    this.leaderboardBox.inputEnabled = true;
+    this.leaderboardBox.events.onInputUp.add(function(){
+        game.state.start('leaderboard');
+    },this)
+    this.leaderboardBox.events.onInputDown.add(function(){
+        game.state.start('leaderboard');
+    },this)
 }
 
 var postScore = function(user,score) {
@@ -270,7 +290,7 @@ var startState = {
         else
             textSub = game.add.text(0, 0, "TAP TO FLAP ", style);
 
-        textSub.setTextBounds(120, 400, 300, 100);
+        textSub.setTextBounds(120, 300, 300, 100);
 
         var style = {  font: "20px Arial", fill: "#111",
             wordWrap: true, wordWrapWidth: 290,
@@ -280,8 +300,11 @@ var startState = {
         soundText.setTextBounds(110, 480, 300, 100);
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
+        createLeaderboardButton(110,450);
+
         spaceKey.onDown.add(function(){game.state.start('main')}, this);
         game.input.onTap.add(function(){game.state.start('main')}, this);
+
 
     },
 
@@ -621,7 +644,35 @@ var mainState = {
                 globalScore = score;
                 game.state.start('highScore')
             }
+            else{
+                this.endBox = game.add.graphics();
+                this.endBox.beginFill(0xFFFFFF, 0.8);
+                this.endBox.lineStyle(10, 0x000000, 0.7);
+                this.endBox.drawRect(100, 200, 300, 400);
+
+                var style = { font: "bold 20px Arial", fill: "#fff",
+                    wordWrap: true, wordWrapWidth: 300,
+                    boundsAlignH: "center", boundsAlignV: "middle" };
+                textMain = game.add.text(0, 0, getRandomEndText(), style);
+                textMain.stroke = '#000000';
+                textMain.strokeThickness = 4;
+                textMain.setTextBounds(120, 260, 240, 100);
+
+                createLeaderboardButton(110,450);
+
+                var style = { font: "bold 16px Arial", fill: "#111",
+                    wordWrap: true, wordWrapWidth: 300,
+                    boundsAlignH: "left", boundsAlignV: "middle" };
+                if (game.device.desktop)
+                    textSub = game.add.text(0, 0, "PRESS SPACE TO MAKE GAMING GREAT AGAIN", style);
+                else
+                    textSub = game.add.text(0, 0, "TAP TO MAKE GAMING GREAT AGAIN", style);
+                textSub.setTextBounds(120, 500, 240, 100);
+                deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){canRestart=true}, this);
+            }
         })
+
+        deathCount = deathCount + 1;
         if (deathCount >= deathMax) {
             // loadAds()
             // console.log("requesting ad")
@@ -643,7 +694,8 @@ var mainState = {
     // Make the bird jump
     jump: function() {
         if (this.trump.alive == false) {
-            if (this.canRestart == true) {
+            if (canRestart == true) {
+
                 this.restartGame();
                 if (deathCount >= deathMax){
                     deathCount = 0;
@@ -673,7 +725,7 @@ var mainState = {
         // Start the 'main' state, which restarts the game
         this.trump.game.state.start('main');
         // this.createAssets();
-        this.canRestart=false;
+        canRestart=false;
     },
 
     gameOver: function() {
@@ -706,32 +758,9 @@ var mainState = {
             p.body.velocity.x = 0;
         }, this);
 
-        this.endBox = game.add.graphics();
-        this.endBox.beginFill(0xFFFFFF, 0.8);
-        this.endBox.lineStyle(10, 0x000000, 0.7);
-        this.endBox.drawRect(100, 200, 300, 300);
-
-        var style = { font: "bold 20px Arial", fill: "#fff",
-            wordWrap: true, wordWrapWidth: 300,
-            boundsAlignH: "center", boundsAlignV: "middle" };
-        textMain = game.add.text(0, 0, getRandomEndText(), style);
-        textMain.stroke = '#000000';
-        textMain.strokeThickness = 4;
-        textMain.setTextBounds(120, 260, 240, 100);
-
-
-        var style = { font: "bold 16px Arial", fill: "#111",
-            wordWrap: true, wordWrapWidth: 300,
-            boundsAlignH: "left", boundsAlignV: "middle" };
-        if (game.device.desktop)
-            textSub = game.add.text(0, 0, "PRESS SPACE TO MAKE GAMING GREAT AGAIN", style);
-        else
-            textSub = game.add.text(0, 0, "TAP TO MAKE GAMING GREAT AGAIN", style);
-        textSub.setTextBounds(120, 400, 240, 100);
-        deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){this.canRestart=true}, this);
-
-        deathCount = deathCount + 1;
         this.onDeath();
+
+
 
     },
 
