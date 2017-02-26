@@ -814,31 +814,27 @@ var mainState = {
 };
 var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
 Phaser.Device.whenReady(function () {
-    game.plugins.add(Fabrique.Plugins.AdManager);
+    // game.plugins.add(Cocoon.Plugins.AdManager);
     game.add.plugin(PhaserInput.Plugin);
 
-    // loadAds();
+    loadAds();
 });
+function loadAds()    {
+    Cocoon.Ad.MoPub.configure({
+        ios: {
+            banner:"f7853b0e5d4f4bc690cfb00f44192f0c",
+            interstitial:"f7853b0e5d4f4bc690cfb00f44192f0c",
+        },
+        android: {
+            banner:"f7853b0e5d4f4bc690cfb00f44192f0c",
+            interstitial:"f7853b0e5d4f4bc690cfb00f44192f0c"
+        }
+    });
 
-loadAds = function() {
-    // game.ads.setAdProvider(new Fabrique.AdProvider.AdSense(
-    //     game,
-    //     'game-container',
-    //     'ad-container',
-    //     'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
-    // ));
-    // //Content paused event is fired when the content (game) should be paused, and the ad will be played
-    // game.ads.onContentPaused.add(function () {
-    //     // game.paused=true;
-    //     console.log('Started playing add');
-    // });
-    //
-    // //This is fired when the ad is finished playing and the content (game) should be resumed
-    // game.ads.onContentResumed.add(function () {
-    //     // game.paused=false;
-    //     console.log('Finished playing add');
-    // });
+    var banner = Cocoon.Ad.MoPub.createBanner();
 }
+
+
 // Add the 'mainState' and call it 'main'
 game.state.add('start',startState);
 game.state.add('leaderboard',leaderboard);
