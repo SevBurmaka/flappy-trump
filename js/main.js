@@ -300,7 +300,7 @@ var startState = {
         soundText.setTextBounds(110, 480, 300, 100);
         var spaceKey = game.input.keyboard.addKey(
             Phaser.Keyboard.SPACEBAR);
-        createLeaderboardButton(110,450);
+        createLeaderboardButton(120,450);
 
         spaceKey.onDown.add(function(){game.state.start('main')}, this);
         game.input.onTap.add(function(){game.state.start('main')}, this);
@@ -658,7 +658,7 @@ var mainState = {
                 textMain.strokeThickness = 4;
                 textMain.setTextBounds(120, 260, 240, 100);
 
-                createLeaderboardButton(110,450);
+                createLeaderboardButton(120,450);
 
                 var style = { font: "bold 16px Arial", fill: "#111",
                     wordWrap: true, wordWrapWidth: 300,
