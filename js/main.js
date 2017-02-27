@@ -39,11 +39,21 @@ maxSpeedScale = 1.5;
 var globalScore = 0;
 
 var scoresDb = firebase.database();
-
+firebase.auth().signInAnonymously().catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // ...
+})
 var checkIsHighScore = function(score){
+
     return getHighScores().then(function (scores){
         return (scores.length < 15 || scores.slice(-1)[0]['score'] < score)
-    })
+    },
+        function(err){
+            console.log(err)
+        }
+    )
 }
 
 var getHighScores = function() {
@@ -54,7 +64,10 @@ var getHighScores = function() {
             scores.push(childSnapshot.val())
         });
         return scores
-    });
+    },
+        function(err){
+            console.log(err)
+        });
 }
 
 var addLeaderboardItem = function(y,count, name, score,style){
@@ -670,7 +683,12 @@ var mainState = {
                 textSub.setTextBounds(120, 500, 240, 100);
                 deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){canRestart=true}, this);
             }
-        })
+        },
+            function(err){
+                console.log(err)
+                game.state.start('start')
+            }
+            )
 
         deathCount = deathCount + 1;
         if (deathCount >= deathMax) {
