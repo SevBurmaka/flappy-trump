@@ -141,7 +141,7 @@ var highScore = {
         this.endBox = game.add.graphics();
         this.endBox.beginFill(0xFFFFFF, 0.8);
         this.endBox.lineStyle(10, 0x000000, 0.7);
-        this.endBox.drawRect(100, 200, 350, 350);
+        this.endBox.drawRect(100, 200, 300, 350);
 
         var style = { font: "bold 20px Arial", fill: "#fff",
             wordWrap: true, wordWrapWidth: 290,
@@ -149,7 +149,7 @@ var highScore = {
         textMain = game.add.text(0, 0, 'YOU SUCCEEDED BIGLY!', style);
         textMain.stroke = '#000000';
         textMain.strokeThickness = 6;
-        textMain.setTextBounds(120, 210, 300, 100);
+        textMain.setTextBounds(110, 210, 300, 100);
         textMain.setShadow(2, 2, 'rgba(0,0,0,0.5)', 2);
 
         var style = {  font: "20px Arial", fill: "#111",
