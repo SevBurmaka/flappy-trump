@@ -72,11 +72,11 @@ var getHighScores = function() {
 
 var addLeaderboardItem = function(y,count, name, score,style){
     countText = game.add.text(0, 0, count, style);
-    countText.setTextBounds(150, y, 100, 100);
+    countText.setTextBounds(120, y, 100, 100);
     nameText = game.add.text(0, 0, name, style);
-    nameText.setTextBounds(200, y, 100, 100);
+    nameText.setTextBounds(150, y, 100, 100);
     scoreText = game.add.text(0, 0, score, style);
-    scoreText.setTextBounds(300, y, 100, 100);
+    scoreText.setTextBounds(350, y, 100, 100);
 
 }
 
