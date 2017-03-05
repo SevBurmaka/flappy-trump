@@ -48,8 +48,8 @@ firebase.auth().signInAnonymously().catch(function(error) {
 var checkIsHighScore = function(score){
 
     return getHighScores().then(function (scores){
-        return (scores.length < 15 || scores.slice(-1)[0]['score'] < score)
-    },
+            return (scores.length < 15 || scores.slice(-1)[0]['score'] < score)
+        },
         function(err){
             console.log(err)
         }
@@ -58,13 +58,13 @@ var checkIsHighScore = function(score){
 
 var getHighScores = function() {
     return scoresDb.ref().child('scores').limitToFirst(15).once('value').then(function(snapshot) {
-        var scores = []
+            var scores = []
 
-        snapshot.forEach(function(childSnapshot) {
-            scores.push(childSnapshot.val())
-        });
-        return scores
-    },
+            snapshot.forEach(function(childSnapshot) {
+                scores.push(childSnapshot.val())
+            });
+            return scores
+        },
         function(err){
             console.log(err)
         });
@@ -449,6 +449,8 @@ var mainState = {
         this.pipeCount = 0
         this.speedScale = 0.75;
         this.skipNextWall = false;
+        showAd('banner')
+
     },
     playBing: function(){
         if (game.time.now - this.lastSoundTimer > this.lastSoundLength) {
@@ -651,60 +653,46 @@ var mainState = {
         this.playLose();//@todo play a "win" soundbite if is a high score
         var score = this.score
         checkIsHighScore(this.score).then(function(isHighScore){
-            if (isHighScore){
-                globalScore = score;
-                game.state.start('highScore')
-            }
-            else{
-                this.endBox = game.add.graphics();
-                this.endBox.beginFill(0xFFFFFF, 0.8);
-                this.endBox.lineStyle(10, 0x000000, 0.7);
-                this.endBox.drawRect(100, 200, 300, 400);
+                if (isHighScore){
+                    globalScore = score;
+                    game.state.start('highScore')
+                }
+                else{
+                    this.endBox = game.add.graphics();
+                    this.endBox.beginFill(0xFFFFFF, 0.8);
+                    this.endBox.lineStyle(10, 0x000000, 0.7);
+                    this.endBox.drawRect(100, 200, 300, 400);
 
-                var style = { font: "bold 20px Arial", fill: "#fff",
-                    wordWrap: true, wordWrapWidth: 300,
-                    boundsAlignH: "center", boundsAlignV: "middle" };
-                textMain = game.add.text(0, 0, getRandomEndText(), style);
-                textMain.stroke = '#000000';
-                textMain.strokeThickness = 4;
-                textMain.setTextBounds(120, 260, 240, 100);
+                    var style = { font: "bold 20px Arial", fill: "#fff",
+                        wordWrap: true, wordWrapWidth: 300,
+                        boundsAlignH: "center", boundsAlignV: "middle" };
+                    textMain = game.add.text(0, 0, getRandomEndText(), style);
+                    textMain.stroke = '#000000';
+                    textMain.strokeThickness = 4;
+                    textMain.setTextBounds(120, 260, 240, 100);
 
-                createLeaderboardButton(120,450);
+                    createLeaderboardButton(120,450);
 
-                var style = { font: "bold 16px Arial", fill: "#111",
-                    wordWrap: true, wordWrapWidth: 300,
-                    boundsAlignH: "left", boundsAlignV: "middle" };
-                if (game.device.desktop)
-                    textSub = game.add.text(0, 0, "PRESS SPACE TO MAKE GAMING GREAT AGAIN", style);
-                else
-                    textSub = game.add.text(0, 0, "TAP TO MAKE GAMING GREAT AGAIN", style);
-                textSub.setTextBounds(120, 500, 240, 100);
-                deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){canRestart=true}, this);
-            }
-        },
+                    var style = { font: "bold 16px Arial", fill: "#111",
+                        wordWrap: true, wordWrapWidth: 300,
+                        boundsAlignH: "left", boundsAlignV: "middle" };
+                    if (game.device.desktop)
+                        textSub = game.add.text(0, 0, "PRESS SPACE TO MAKE GAMING GREAT AGAIN", style);
+                    else
+                        textSub = game.add.text(0, 0, "TAP TO MAKE GAMING GREAT AGAIN", style);
+                    textSub.setTextBounds(120, 500, 240, 100);
+                    deathTimer = game.time.events.add(Phaser.Timer.SECOND * 1, function(){canRestart=true}, this);
+                }
+            },
             function(err){
                 console.log(err)
                 game.state.start('start')
             }
-            )
+        )
 
         deathCount = deathCount + 1;
         if (deathCount >= deathMax) {
-            // loadAds()
-            // console.log("requesting ad")
-            // if (game.device.desktop) {
-            //     //This is how we request an ad for desktop
-            //     game.ads.requestAd({
-            //         deployment: 'devsite',
-            //         sample_ct: 'skippablenonlinear'
-            //     });
-            // } else {
-            //     //In mobile we need to activate it by user input
-            //     game.ads.requestAd({
-            //         deployment: 'devsite',
-            //         sample_ct: (this.game.device.iPhone) ? 'linear' : 'skippablelinear' //Iphone doesn't support skippable videos
-            //     });
-            // }
+            showAd('interstitial')
         }
     },
     // Make the bird jump
@@ -837,10 +825,6 @@ Phaser.Device.whenReady(function () {
 });
 
 loadAds = function() {
-    // game.ads.setAdProvider(new PhaserAds.AdProvider.AdMob(
-    //     game,
-    //     'ca-app-pub-7470857622953690/3264901768'
-    // ));
     game.ads.setAdProvider(new PhaserAds.AdProvider.CocoonAds(
         game,"AdMob",{
             ios: {
@@ -852,20 +836,29 @@ loadAds = function() {
             //     interstitial:"ca-app-pub-7686972479101507/4443703872"
             // }
         }
-       
+
     ));
     //Content paused event is fired when the content (game) should be paused, and the ad will be played
     game.ads.onContentPaused.add(function () {
-        // game.paused=true;
+        game.paused=true;
         console.log('Started playing add');
     });
 
     //This is fired when the ad is finished playing and the content (game) should be resumed
     game.ads.onContentResumed.add(function () {
-        // game.paused=false;
+        game.paused=false;
         console.log('Finished playing add');
     });
 }
+
+var showAd = function(type){
+    var adsEnabled = game.ads.provider.areAdsEnabled();
+    if (adsEnabled && !game.device.desktop) {
+        //This is how we request an ad for desktop
+        game.ads.showAd(type);
+    }
+}
+
 // Add the 'mainState' and call it 'main'
 game.state.add('start',startState);
 game.state.add('leaderboard',leaderboard);
@@ -873,5 +866,4 @@ game.state.add('highScore',highScore);
 game.state.add('main', mainState);
 // Start the state to actually start the game
 game.state.start('start');
-
 
