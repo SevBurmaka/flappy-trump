@@ -820,7 +820,6 @@ var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
 Phaser.Device.whenReady(function () {
     game.plugins.add(PhaserAds.AdManager);
     game.add.plugin(PhaserInput.Plugin);
-
     loadAds();
 });
 
@@ -838,6 +837,13 @@ loadAds = function() {
         }
 
     ));
+    // game.ads.setAdProvider(new PhaserAds.AdProvider.Ima3(
+    //     game,
+    //    'https://pubads.g.doubleclick.net/gampad/ads?' +
+    //    'sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&' +
+    //    'impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&' +
+    //    'cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator='
+    // ));
     //Content paused event is fired when the content (game) should be paused, and the ad will be played
     game.ads.onContentPaused.add(function () {
         game.paused=true;
@@ -852,11 +858,30 @@ loadAds = function() {
 }
 
 var showAd = function(type){
-    var adsEnabled = game.ads.provider.adsEnabled;
+    // var adsEnabled = game.ads.provider.adsEnabled;
     if (adsEnabled && !game.device.desktop) {
         //This is how we request an ad for desktop
         game.ads.showAd(type);
     }
+    console.log("attempting to show ad")
+    // var adsEnabled = game.ads.provider.areAdsEnabled();
+    // if (adsEnabled) {
+    //     if (game.device.desktop) {
+    //         //This is how we request an ad for desktop
+    //         console.log("attempting to show desktop ad")
+    //         game.ads.showAd({
+    //             deployment: 'devsite',
+    //             sample_ct: 'skippablelinear'
+    //         });
+    //     } else {
+    //         //In mobile we need to activate it by user input
+    //         console.log("attempting to show ios ad")
+    //         game.ads.showAd({
+    //             deployment: 'devsite',
+    //             sample_ct: (this.game.device.iPhone) ? 'linear' : 'skippablelinear' //Iphone doesn't support skippable videos
+    //         });
+    //     }
+    // }
 }
 
 // Add the 'mainState' and call it 'main'
