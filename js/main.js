@@ -189,8 +189,6 @@ var highScore = {
         enterKey.onDown.add(enterScore, this);
     },
 
-
-
     update: function() {
 
     }
@@ -832,30 +830,41 @@ var mainState = {
 };
 var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
 Phaser.Device.whenReady(function () {
-    game.plugins.add(Fabrique.Plugins.AdManager);
+    game.plugins.add(PhaserAds.AdManager);
     game.add.plugin(PhaserInput.Plugin);
 
-    // loadAds();
+    loadAds();
 });
 
 loadAds = function() {
-    // game.ads.setAdProvider(new Fabrique.AdProvider.AdSense(
+    // game.ads.setAdProvider(new PhaserAds.AdProvider.AdMob(
     //     game,
-    //     'game-container',
-    //     'ad-container',
-    //     'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
+    //     'ca-app-pub-7470857622953690/3264901768'
     // ));
-    // //Content paused event is fired when the content (game) should be paused, and the ad will be played
-    // game.ads.onContentPaused.add(function () {
-    //     // game.paused=true;
-    //     console.log('Started playing add');
-    // });
-    //
-    // //This is fired when the ad is finished playing and the content (game) should be resumed
-    // game.ads.onContentResumed.add(function () {
-    //     // game.paused=false;
-    //     console.log('Finished playing add');
-    // });
+    game.ads.setAdProvider(new PhaserAds.AdProvider.CocoonAds(
+        game,"AdMob",{
+            ios: {
+                banner:"ca-app-pub-7470857622953690/8475550164",
+                interstitial:"ca-app-pub-7470857622953690/3264901768",
+            },
+            // android: {
+            //     banner:"ca-app-pub-7686972479101507/4443703872",
+            //     interstitial:"ca-app-pub-7686972479101507/4443703872"
+            // }
+        }
+       
+    ));
+    //Content paused event is fired when the content (game) should be paused, and the ad will be played
+    game.ads.onContentPaused.add(function () {
+        // game.paused=true;
+        console.log('Started playing add');
+    });
+
+    //This is fired when the ad is finished playing and the content (game) should be resumed
+    game.ads.onContentResumed.add(function () {
+        // game.paused=false;
+        console.log('Finished playing add');
+    });
 }
 // Add the 'mainState' and call it 'main'
 game.state.add('start',startState);
