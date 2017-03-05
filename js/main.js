@@ -818,25 +818,57 @@ var mainState = {
 };
 var game = new Phaser.Game(500, 888,Phaser.Canvas, 'game-container');
 Phaser.Device.whenReady(function () {
-    game.plugins.add(PhaserAds.AdManager);
+    // game.plugins.add(PhaserAds.AdManager);
     game.add.plugin(PhaserInput.Plugin);
     loadAds();
 });
 
 loadAds = function() {
-    game.ads.setAdProvider(new PhaserAds.AdProvider.CocoonAds(
-        game,"AdMob",{
-            ios: {
-                banner:"ca-app-pub-7470857622953690/8475550164",
-                interstitial:"ca-app-pub-7470857622953690/3264901768",
-            },
-            // android: {
-            //     banner:"ca-app-pub-7686972479101507/4443703872",
-            //     interstitial:"ca-app-pub-7686972479101507/4443703872"
-            // }
-        }
+    var service = Cocoon.Ad;
+    service.configure({
+        banner:"ca-app-pub-7470857622953690/8475550164",
+        interstitial:"ca-app-pub-7470857622953690/3264901768"
+    })
+    game.banner = service.createBanner();
+    game.interstitial = service.createInterstitial();
 
-    ));
+    game.banner.on("load", function(){
+        console.log("Banner loaded " + banner.width, banner.height);
+        banner.show();
+    });
+
+    game.banner.on("fail", function(){
+        console.log("Banner failed to load");
+    });
+
+    game.banner.on("show", function(){
+        console.log("Banner shown a modal content");
+    });
+
+    game.interstitial.on("load", function(){
+        console.log("interstitial loaded " );
+    });
+
+    game.interstitial.on("fail", function(){
+        console.log("interstitial failed to load");
+    });
+
+    game.interstitial.on("show", function(){
+        console.log("interstitial shown a modal content");
+    });
+    // game.ads.setAdProvider(new PhaserAds.AdProvider.CocoonAds(
+    //     game,"AdMob",{
+    //         ios: {
+    //             banner:"ca-app-pub-7470857622953690/8475550164",
+    //             interstitial:"ca-app-pub-7470857622953690/3264901768",
+    //         },
+    //         // android: {
+    //         //     banner:"ca-app-pub-7686972479101507/4443703872",
+    //         //     interstitial:"ca-app-pub-7686972479101507/4443703872"
+    //         // }
+    //     }
+    //
+    // ));
     // game.ads.setAdProvider(new PhaserAds.AdProvider.Ima3(
     //     game,
     //    'https://pubads.g.doubleclick.net/gampad/ads?' +
@@ -845,23 +877,32 @@ loadAds = function() {
     //    'cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator='
     // ));
     //Content paused event is fired when the content (game) should be paused, and the ad will be played
-    game.ads.onContentPaused.add(function () {
-        game.paused=true;
-        console.log('Started playing add');
-    });
-
-    //This is fired when the ad is finished playing and the content (game) should be resumed
-    game.ads.onContentResumed.add(function () {
-        game.paused=false;
-        console.log('Finished playing add');
-    });
+    // game.ads.onContentPaused.add(function () {
+    //     game.paused=true;
+    //     console.log('Started playing add');
+    // });
+    //
+    // //This is fired when the ad is finished playing and the content (game) should be resumed
+    // game.ads.onContentResumed.add(function () {
+    //     game.paused=false;
+    //     console.log('Finished playing add');
+    // });
 }
 
 var showAd = function(type){
     // var adsEnabled = game.ads.provider.adsEnabled;
         //This is how we request an ad for desktop
-    console.log("attempting to show ad")
-    game.ads.showAd(type);
+    console.log("attempting to show ad of type "+type)
+    try {
+        if (type = "banner")
+            game.banner.load();
+        else {
+            game.interstitial.load();
+            game.interstitial.show();
+        }
+    }catch(e){
+        console.log("Error creating ad")
+    }
     // var adsEnabled = game.ads.provider.areAdsEnabled();
     // if (adsEnabled) {
     //     if (game.device.desktop) {
