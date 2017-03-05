@@ -859,11 +859,9 @@ loadAds = function() {
 
 var showAd = function(type){
     // var adsEnabled = game.ads.provider.adsEnabled;
-    if (adsEnabled && !game.device.desktop) {
         //This is how we request an ad for desktop
-        game.ads.showAd(type);
-    }
     console.log("attempting to show ad")
+    game.ads.showAd(type);
     // var adsEnabled = game.ads.provider.areAdsEnabled();
     // if (adsEnabled) {
     //     if (game.device.desktop) {
